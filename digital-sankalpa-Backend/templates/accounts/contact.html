@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Contact Section -->
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Contact Us</h2>
+    <div class="row">
+        <!-- Contact Form -->
+        <div class="col-md-6 mb-4">
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <h4 class="mb-3">Get in Touch</h4>
+                <form action="{% url 'contact' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name"required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" rows="4" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="col-md-6">
+            <div class="p-4 border rounded bg-white shadow-sm">
+                <h4 class="mb-3">Contact Information</h4>
+                <p><i class="bi bi-envelope-fill text-primary"></i> contact@modernshop.com</p>
+                <p><i class="bi bi-telephone-fill text-primary"></i> (123) 456-7890</p>
+                <p><i class="bi bi-chat-fill text-primary"></i> Live chat available 24/7</p>
+
+                <h5 class="mt-4">Business Hours</h5>
+                <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+                <p>Saturday: 10:00 AM - 4:00 PM</p>
+                <p>Sunday: Closed</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .badge {
+    font-size: 1em;
+    padding: 0.5em;
+  }
+  .badge-success {
+    background-color: #28a745;
+    color: white;
+  }
+  .badge-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+</style>
+<div class="container mt-5 mb-5">
+  <h2 class="text-center mb-4">Your Orders</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Order id</th>
+        <th>Products</th>
+        <th>Quantity</th>
+        <th>Total</th>
+        <th>Payment Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+        <tr>
+            <td>{{ order.uuid }}</td>
+            <td>
+              {% for item in order.cart_items.all %}
+                {{ item.product.name }}
+                {% if not forloop.last %},{% endif %}
+              {% endfor %}
+            </td>
+            <td>
+              {% with quantity=0 %}
+              {% for item in order.cart_items.all %}
+              {{ quantity|add:item.quantity }}
+              {% endfor %}
+              {% endwith %}
+            </td>
+            <td>${{ order.total_price }}</td>
+            <td>
+              {% if order.payment_status == "completed" %}
+              <span class="badge badge-success">Paid</span>
+              {% else %}
+              <span class="badge badge-danger">Not Paid</span>
+              {% endif %}
+            </td>
+          </tr>
+            {% empty %}
+            <td colspan="5">Your cart is empty!</td>
+      {% endfor %}
+      
+    </tbody>
+  </table>
+</div>
+{% endblock %}

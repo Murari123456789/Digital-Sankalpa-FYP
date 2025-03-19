@@ -1,0 +1,70 @@
+<!-- product_detail.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded">
+        </div>
+        <div class="col-md-6">
+            <h1>{{ product.name }}</h1>
+            <p class="lead">{{ product.description }}</p>
+            <h3>Price: RS.{{ product.price }}</h3>
+            <p>In Stock: {{ product.stock }}</p>
+            
+            <!-- Add to Cart Button (you can make this functional later) -->
+            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">Add to Cart</a>
+        </div>
+    </div>
+
+    <!-- Optional: Display reviews, related products, etc. -->
+    <hr>
+    <div class="mt-4">
+        <h4>Customer Reviews</h4>
+        {% if request.user.is_superuser %}
+        <a href="{% url 'admin:reviews_review_changelist' %}" class="btn btn-secondary bg-purple">Manage Reviews</a>
+        {% endif %}
+        {% if has_bought %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="rating">Rating</label>
+                    <select class="form-control " id="rating" name="rating">
+                        <option value="1">⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                    <button type="submit" class="btn btn-success mt-2">Submit Review</button>
+                </div>
+            </form>
+
+        {% else %}
+            <p>You must purchase this product to leave a review.</p>
+        {% endif %}
+        {% for rev in product.reviews.all %}
+            <div class="card my-2">
+                <div class="card-body">
+                    <h5 class="card-title">{{ rev.user.username }}</h5>
+                    <p class="card-text">{{ rev.comment }}</p>
+                    <p class="card-text">
+                        {% for i in "12345"|slice:":rev.rating" %}
+                            ⭐
+                        {% endfor %}
+                    </p>
+                    <p class="card-text"><small class="text-muted">{{ rev.created_at }}</small></p>
+                </div>
+            </div>
+        {% empty %}
+            <p>No reviews yet.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
