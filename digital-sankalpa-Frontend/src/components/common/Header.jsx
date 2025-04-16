@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 
@@ -7,7 +7,15 @@ const Header = () => {
   const { user, logout } = useAuth();
   const { cartItems } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
+
+  const isActivePath = (path) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -116,26 +124,56 @@ const Header = () => {
         </div>
         
         {/* Navigation */}
-        <nav className="py-3 border-t">
+        <nav className="py-3 border-t relative">
           <ul className="flex space-x-6 text-sm">
             <li>
-              <Link to="/products" className="text-blue-500 hover:underline">All Products</Link>
+              <Link 
+                to="/" 
+                className={`relative px-1 py-2 ${isActivePath('/') ? 'text-blue-600 font-medium after:absolute after:w-full after:h-0.5 after:bg-blue-600 after:bottom-0 after:left-0' : 'text-gray-600'} hover:text-blue-500 transition-colors duration-200`}
+              >
+                Home
+              </Link>
             </li>
             <li>
-              <Link to="/sales" className="text-gray-600 hover:text-blue-500">Sale</Link>
+              <Link 
+                to="/products" 
+                className={`relative px-1 py-2 ${isActivePath('/products') ? 'text-blue-600 font-medium after:absolute after:w-full after:h-0.5 after:bg-blue-600 after:bottom-0 after:left-0' : 'text-gray-600'} hover:text-blue-500 transition-colors duration-200`}
+              >
+                All Products
+              </Link>
             </li>
             <li>
-              <Link to="/locations" className="text-gray-600 hover:text-blue-500">Locations</Link>
+              <Link 
+                to="/locations" 
+                className={`relative px-1 py-2 ${isActivePath('/locations') ? 'text-blue-600 font-medium after:absolute after:w-full after:h-0.5 after:bg-blue-600 after:bottom-0 after:left-0' : 'text-gray-600'} hover:text-blue-500 transition-colors duration-200`}
+              >
+                Locations
+              </Link>
             </li>
             <li>
-              <Link to="/warranty" className="text-gray-600 hover:text-blue-500">Warranty</Link>
+              <Link 
+                to="/warranty" 
+                className={`relative px-1 py-2 ${isActivePath('/warranty') ? 'text-blue-600 font-medium after:absolute after:w-full after:h-0.5 after:bg-blue-600 after:bottom-0 after:left-0' : 'text-gray-600'} hover:text-blue-500 transition-colors duration-200`}
+              >
+                Warranty
+              </Link>
             </li>
             <li>
-              <Link to="/contact" className="text-gray-600 hover:text-blue-500">Contact</Link>
+              <Link 
+                to="/contact" 
+                className={`relative px-1 py-2 ${isActivePath('/contact') ? 'text-blue-600 font-medium after:absolute after:w-full after:h-0.5 after:bg-blue-600 after:bottom-0 after:left-0' : 'text-gray-600'} hover:text-blue-500 transition-colors duration-200`}
+              >
+                Contact
+              </Link>
             </li>
             {isAdmin && (
               <li>
-                <Link to="/admin" className="text-gray-600 hover:text-blue-500">Admin Dashboard</Link>
+                <Link 
+                  to="/admin" 
+                  className={`relative px-1 py-2 ${isActivePath('/admin') ? 'text-blue-600 font-medium after:absolute after:w-full after:h-0.5 after:bg-blue-600 after:bottom-0 after:left-0' : 'text-gray-600'} hover:text-blue-500 transition-colors duration-200`}
+                >
+                  Admin Dashboard
+                </Link>
               </li>
             )}
           </ul>
