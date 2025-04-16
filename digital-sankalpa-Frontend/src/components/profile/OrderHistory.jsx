@@ -13,7 +13,7 @@ const OrderHistory = () => {
       try {
         setLoading(true);
         const response = await getOrders();
-        setOrders(response.orders || []);
+        setOrders(response || []);
       } catch (err) {
         setError('Failed to load orders. Please try again later.');
         console.error(err);
@@ -24,7 +24,7 @@ const OrderHistory = () => {
     
     fetchOrders();
   }, []);
-  
+  console.log(orders)
   // Format date
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -96,9 +96,7 @@ const OrderHistory = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -129,14 +127,7 @@ const OrderHistory = () => {
                       {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link
-                      to={`/order/${order.id}`}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      View
-                    </Link>
-                  </td>
+                 
                 </tr>
               ))}
             </tbody>

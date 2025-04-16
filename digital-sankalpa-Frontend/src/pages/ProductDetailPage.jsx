@@ -195,10 +195,10 @@ const ProductDetailPage = () => {
             </div>
             
             <div className="mb-4">
-              <span className="text-2xl font-bold text-gray-900">${product.price }</span>
+              <span className="text-2xl font-bold text-gray-900">Rs. {product.price }</span>
               {product.compare_at_price && (
                 <span className="ml-2 text-lg text-gray-500 line-through">
-                  ${product.compare_at_price }
+                  Rs.{product.compare_at_price }
                 </span>
               )}
             </div>
@@ -425,7 +425,7 @@ const ProductDetailPage = () => {
               </div>
               <div className="p-4">
                 <h3 className="text-lg font-semibold mb-2">Related Product {i}</h3>
-                <p className="text-gray-600 mb-4">$199.99</p>
+                <p className="text-gray-600 mb-4">Rs. 199.99</p>
                 <div className="flex justify-between items-center">
                   <Link to="#" className="text-blue-500 hover:underline">View Details</Link>
                   <button className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-blue-600">

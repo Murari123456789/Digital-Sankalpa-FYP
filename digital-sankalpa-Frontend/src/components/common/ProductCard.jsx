@@ -4,7 +4,7 @@ import { useCart } from '../../hooks/useCart';
 import { toast } from 'react-toastify'; // If you're using toast notifications
 
 const ProductCard = ({ product }) => {
-  const { addToCart, loading, isAuthenticated } = useCart();
+  const { addToCart, isAuthenticated } = useCart(); // Remove 'loading' from here
   const navigate = useNavigate();
   const location = useLocation();
   const [isAdding, setIsAdding] = useState(false);
@@ -21,15 +21,20 @@ const ProductCard = ({ product }) => {
     }
     
     setIsAdding(true);
-    const result = await addToCart(product.id);
-    setIsAdding(false);
-    
-    if (result.success) {
-      // Show success message
-      toast?.success(result.message || 'Item added to cart');
-    } else {
-      // Show error message
-      toast?.error(result.error || 'Failed to add item to cart');
+    try {
+      const result = await addToCart(product.id);
+      
+      if (result.success) {
+        // Show success message
+        toast?.success(result.message || 'Item added to cart');
+      } else {
+        // Show error message
+        toast?.error(result.error || 'Failed to add item to cart');
+      }
+    } catch (error) {
+      toast?.error('An error occurred while adding to cart');
+    } finally {
+      setIsAdding(false);
     }
   };
   
@@ -39,7 +44,7 @@ const ProductCard = ({ product }) => {
         <div className="h-48 bg-gray-200 flex items-center justify-center">
           {product.image ? (
             <img 
-              src={product.image} 
+              src={`http://localhost:8000/${product.image}`} 
               alt={product.name} 
               className="object-cover w-full h-full"
             />
@@ -53,7 +58,7 @@ const ProductCard = ({ product }) => {
         <Link to={`/products/${product.id}`}>
           <h3 className="text-lg font-semibold mb-2 hover:text-blue-600">{product.name}</h3>
         </Link>
-        <p className="text-gray-600 mb-4">${product.price || '0.00'}</p>
+        <p className="text-gray-600 mb-4">Rs. {product.price || '0.00'}</p>
         
         <div className="flex justify-between items-center">
           <Link 
@@ -65,7 +70,7 @@ const ProductCard = ({ product }) => {
           
           <button 
             onClick={handleAddToCart}
-            disabled={isAdding || loading}
+            disabled={isAdding}
             className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-blue-600 disabled:bg-blue-300"
             aria-label="Add to cart"
           >

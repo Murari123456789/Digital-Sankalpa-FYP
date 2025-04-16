@@ -112,8 +112,8 @@ def checkout(request):
 
     # Setup the payment system (Esewa in this case)
     payment = EsewaPayment(
-        success_url=f"http://localhost:8000/orders/checkout/success/{order.id}",
-        failure_url=f"http://localhost:8000/orders/checkout/failure/{order.id}"
+        success_url=f"http://localhost:3000/order-success/{order.id}",
+        failure_url=f"http://localhost:3000/checkout/{order.id}"
     )
     
     # Generate the payment signature for Esewa

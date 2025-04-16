@@ -102,17 +102,17 @@ const CartPage = () => {
             <div className="border-t border-b py-4 mb-4">
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600">Subtotal</span>
-                <span>${subtotal }</span>
+                <span>Rs. {subtotal }</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
-                <span>{shipping > 0 ? `$${shipping }` : 'Free'}</span>
+                <span>{shipping > 0 ? `Rs. ${shipping }` : 'Free'}</span>
               </div>
             </div>
             
             <div className="flex justify-between mb-6">
               <span className="font-semibold">Total</span>
-              <span className="font-semibold">${total }</span>
+              <span className="font-semibold">Rs. {total }</span>
             </div>
             
             <Link 

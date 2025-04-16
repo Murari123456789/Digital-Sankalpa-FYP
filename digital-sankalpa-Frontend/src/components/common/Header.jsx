@@ -16,6 +16,9 @@ const Header = () => {
     }
   };
 
+  // Check if user is admin
+  const isAdmin = user && user.isAdmin === true;
+
   return (
     <header className="bg-white shadow-sm">
       <div className="container mx-auto">
@@ -24,15 +27,13 @@ const Header = () => {
           <div className="flex gap-4 text-sm text-gray-600">
             {user ? (
               <>
-                <button onClick={logout} className="hover:text-blue-500">Sign Out</button>
-                <span>|</span>
+                
                 <Link to="/profile" className="hover:text-blue-500">My Account</Link>
               </>
             ) : (
               <>
                 <Link to="/login" className="hover:text-blue-500">Sign In</Link>
-                <span>|</span>
-                <Link to="/register" className="hover:text-blue-500">Create an Account</Link>
+               
               </>
             )}
             <span>|</span>
@@ -86,7 +87,7 @@ const Header = () => {
           <div className="flex items-center gap-6">
             <div className="text-right">
               <div className="text-sm text-gray-500">CALL US NOW</div>
-              <div className="font-semibold">9851060000</div>
+              <div className="font-semibold">9855080600</div>
             </div>
             
             <Link to="/profile" className="text-gray-600 hover:text-blue-500">
@@ -132,7 +133,7 @@ const Header = () => {
             <li>
               <Link to="/contact" className="text-gray-600 hover:text-blue-500">Contact</Link>
             </li>
-            {user && user.isAdmin && (
+            {isAdmin && (
               <li>
                 <Link to="/admin" className="text-gray-600 hover:text-blue-500">Admin Dashboard</Link>
               </li>

@@ -10,5 +10,6 @@ urlpatterns = [
     path('orders/', include('orders.api_urls')),
     path('reviews/', include('reviews.api_urls')),
     path('discounts/', include('discounts.api_urls')),
+
     
 ]

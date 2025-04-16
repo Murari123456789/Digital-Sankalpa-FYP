@@ -12,7 +12,7 @@ const OrderSummary = ({ cartItems, subtotal, shippingCost, totalCost }) => {
               <div className="font-medium">{item.name}</div>
               <div className="text-sm text-gray-500">Qty: {item.quantity}</div>
             </div>
-            <div className="font-medium">${item.total_price}</div>
+            <div className="font-medium">Rs. {item.total_price}</div>
           </div>
         ))}
       </div>
@@ -20,15 +20,15 @@ const OrderSummary = ({ cartItems, subtotal, shippingCost, totalCost }) => {
       <div className="border-t pt-4">
         <div className="flex justify-between mb-2">
           <span className="text-gray-600">Subtotal</span>
-          <span>${subtotal }</span>
+          <span>Rs. {subtotal }</span>
         </div>
         <div className="flex justify-between mb-2">
           <span className="text-gray-600">Shipping</span>
-          <span>{shippingCost > 0 ? `$${shippingCost }` : 'Free'}</span>
+          <span>{shippingCost > 0 ? `Rs. ${shippingCost }` : 'Free'}</span>
         </div>
         <div className="flex justify-between py-2 border-t border-b mb-4">
           <span className="font-semibold">Total</span>
-          <span className="font-semibold">${totalCost }</span>
+          <span className="font-semibold">Rs. {totalCost }</span>
         </div>
       </div>
       

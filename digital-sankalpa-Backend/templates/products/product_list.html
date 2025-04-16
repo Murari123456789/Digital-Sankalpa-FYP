@@ -15,7 +15,7 @@
       <div class="card-body">
         <h5 class="card-title">{{ product.name }}</h5>
         <p class="card-text">{{ product.description|truncatechars:100 }}</p>
-        <h6 class="text-primary text-purple">RS.{{ product.price }}</h6>
+        <h6 class="text-primary text-purple">Rs.{{ product.price }}</h6>
         <div class="d-flex justify-content-between align-items-center">
           <div class="btn-group">
           <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-outline-secondary">View</a>

@@ -103,7 +103,7 @@ def checkout(request):
         )
         payment.create_signature(final_price, uid)
 
-        messages.success(request, f'Order placed successfully! Total: ${final_price}')
+        messages.success(request, f'Order placed successfully! Total: Rs.{final_price}')
         return render(request, 'orders/checkout.html', {'order': order,'form':payment.generate_form()})
     else:
         messages.error(request, 'Your cart is empty!', extra_tags='danger')

@@ -15,7 +15,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
           <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center mr-4">
             {item && item.image ? (
               <img
-                src={item.image}
+              src={`http://localhost:8000/${item.image}`} 
                 alt={item.name}
                 className="w-full h-full object-cover"
               />
@@ -23,6 +23,8 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
               <span className="text-gray-500 text-xs">No image</span>
             )}
           </div>
+          <span>{item.product_name}</span>
+
           <div>
             <Link
               to={`/products/${item.id}`}
@@ -35,7 +37,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
       </div>
       
       <div className="col-span-2 text-center">
-        ${item.price}
+        Rs. {item.total_price}
       </div>
       
       <div className="col-span-2 text-center">
@@ -64,7 +66,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
       </div>
       
       <div className="col-span-2 text-right font-medium">
-        ${item.total_price}
+        Rs. {item.total_price}
         <button
           onClick={onRemove}
           className="ml-3 text-red-500 hover:text-red-700"

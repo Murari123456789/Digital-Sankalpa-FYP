@@ -6,7 +6,7 @@ import PasswordChange from '../components/profile/PasswordChange';
 import Loading from '../components/common/Loading';
 
 const ProfilePage = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   
   if (loading) {
@@ -95,6 +95,19 @@ const ProfilePage = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Rewards & Points
+                  </button>
+                </li>
+                <li>
+                <button
+                    onClick={logout}
+                    className={`w-full text-left px-4 py-2 rounded flex items-center ${
+                      activeTab === 'password'
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span className='text-red'>                    Sign out
+                    </span>
                   </button>
                 </li>
               </ul>
