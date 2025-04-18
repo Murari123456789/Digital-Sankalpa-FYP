@@ -3,7 +3,7 @@ import api from './index';
 // Register a new user
 export const register = async (userData) => {
   try {
-    const response = await api.post('accounts/register', userData);
+    const response = await api.post('/accounts/register/', userData);
     return response.data;
   } catch (error) {
     throw error;

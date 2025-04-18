@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+const CATEGORIES = [
+  { id: 'printer', label: 'Printers' },
+  { id: 'ink', label: 'Ink & Toner' },
+  { id: 'heatpress', label: 'Heat Press' }
+];
+
 const ProductFilter = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [priceRange, setPriceRange] = useState({
@@ -8,7 +14,20 @@ const ProductFilter = () => {
     max: searchParams.get('max_price') || '',
   });
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
+  const [selectedCategories, setSelectedCategories] = useState(
+    searchParams.get('categories')?.split(',').filter(Boolean) || []
+  );
   
+  // Handle category toggle
+  const handleCategoryToggle = (categoryId) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId);
+      }
+      return [...prev, categoryId];
+    });
+  };
+
   // Apply filters
   const applyFilters = () => {
     const newParams = new URLSearchParams(searchParams);
@@ -32,6 +51,13 @@ const ProductFilter = () => {
     } else {
       newParams.delete('sort');
     }
+
+    // Add categories
+    if (selectedCategories.length > 0) {
+      newParams.set('categories', selectedCategories.join(','));
+    } else {
+      newParams.delete('categories');
+    }
     
     // Reset to page 1 when filtering
     newParams.set('page', '1');
@@ -43,6 +69,7 @@ const ProductFilter = () => {
   const resetFilters = () => {
     setPriceRange({ min: '', max: '' });
     setSortBy('newest');
+    setSelectedCategories([]);
     
     const newParams = new URLSearchParams();
     const query = searchParams.get('query');
@@ -112,46 +139,20 @@ const ProductFilter = () => {
       <div className="mb-4">
         <h3 className="font-medium mb-2">Category</h3>
         <div className="space-y-2">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="category-printers"
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="category-printers" className="ml-2 text-gray-700">
-              Printers
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="category-scanners"
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="category-scanners" className="ml-2 text-gray-700">
-              Scanners
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="category-accessories"
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="category-accessories" className="ml-2 text-gray-700">
-              Accessories
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="category-ink"
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="category-ink" className="ml-2 text-gray-700">
-              Ink & Toner
-            </label>
-          </div>
+          {CATEGORIES.map(category => (
+            <div key={category.id} className="flex items-center">
+              <input
+                type="checkbox"
+                id={`category-${category.id}`}
+                checked={selectedCategories.includes(category.id)}
+                onChange={() => handleCategoryToggle(category.id)}
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor={`category-${category.id}`} className="ml-2 text-gray-700">
+                {category.label}
+              </label>
+            </div>
+          ))}
         </div>
       </div>
       

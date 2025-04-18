@@ -38,7 +38,11 @@ const RegisterPage = () => {
       setRegisterError(null);
       
       try {
-        const { passwordConfirm, ...userData } = values;
+        const { passwordConfirm, ...rest } = values;
+        const userData = {
+          ...rest,
+          password_confirm: passwordConfirm
+        };
         const result = await register(userData);
         
         if (result.success) {

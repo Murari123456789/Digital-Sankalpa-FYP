@@ -8,9 +8,41 @@ from .serializers import ProductSerializer
 
 @api_view(['GET'])
 def product_list(request):
+    # Start with all products
+    products = Product.objects.all()
+
+    # Apply search query filter
     query = request.GET.get('query', '')
-    products = Product.objects.filter(name__icontains=query) if query else Product.objects.all().order_by('-created_at')
-    
+    if query:
+        products = products.filter(name__icontains=query)
+
+    # Apply category filter
+    categories = request.GET.get('categories', '')
+    if categories:
+        category_list = categories.split(',')
+        products = products.filter(category__in=category_list)
+
+    # Apply price range filter
+    min_price = request.GET.get('min_price')
+    if min_price:
+        products = products.filter(price__gte=float(min_price))
+
+    max_price = request.GET.get('max_price')
+    if max_price:
+        products = products.filter(price__lte=float(max_price))
+
+    # Apply sorting
+    sort = request.GET.get('sort', 'newest')
+    if sort == 'newest':
+        products = products.order_by('-created_at')
+    elif sort == 'price_low':
+        products = products.order_by('price')
+    elif sort == 'price_high':
+        products = products.order_by('-price')
+    elif sort == 'popular':
+        # You might want to implement a more sophisticated popularity metric
+        products = products.order_by('-created_at')
+
     # Pagination: Show 9 products per page
     paginator = Paginator(products, 9)
     page_number = request.GET.get('page', 1)

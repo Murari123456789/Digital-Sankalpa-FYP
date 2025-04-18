@@ -1,11 +1,9 @@
 import api from './index';
 
-// Fetch products with optional search query and pagination
-export const getProducts = async (query = '', page = 1) => {
+// Fetch products with optional search query, pagination, and filters
+export const getProducts = async (params = {}) => {
   try {
-    const response = await api.get('/products/', {
-      params: { query, page }
-    });
+    const response = await api.get('/products/', { params });
     return response.data;
   } catch (error) {
     throw error;
