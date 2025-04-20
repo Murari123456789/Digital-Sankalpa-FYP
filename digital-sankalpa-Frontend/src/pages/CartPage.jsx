@@ -86,12 +86,9 @@ const CartPage = () => {
               Continue Shopping
             </Link>
             
-            <button
-              onClick={() => window.location.reload()}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              Update Cart
-            </button>
+            <Link to="/products" className="text-gray-600 hover:text-gray-800">
+              Browse More Products
+            </Link>
           </div>
         </div>
         

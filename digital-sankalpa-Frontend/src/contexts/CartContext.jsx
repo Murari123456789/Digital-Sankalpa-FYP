@@ -64,16 +64,28 @@ export const CartProvider = ({ children }) => {
   // Update cart item quantity
   const updateCartItem = async (cartItemId, quantity) => {
     try {
-      setLoading(true);
+      // Optimistically update the UI
+      const updatedItems = cartItems.map(item =>
+        item.id === cartItemId
+          ? { ...item, quantity: quantity, total_price: (item.price || 0) * quantity }
+          : item
+      );
+      setCartItems(updatedItems);
+
+      // Make the API call
       await ordersApi.updateCartItem(cartItemId, quantity);
-      await fetchCart(); // Refresh cart after updating
+      
+      // Fetch the latest state from server
+      const response = await ordersApi.getCart();
+      setCartItems(response.cart_items || []);
+      
       return { success: true };
     } catch (err) {
       const errorMsg = err.response?.data?.error || 'Failed to update cart item';
       setError(errorMsg);
+      // Revert to original state on error
+      await fetchCart();
       return { success: false, error: errorMsg };
-    } finally {
-      setLoading(false);
     }
   };
 

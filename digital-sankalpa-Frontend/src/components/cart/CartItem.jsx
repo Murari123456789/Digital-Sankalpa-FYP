@@ -2,8 +2,9 @@ import { Link } from 'react-router-dom';
 
 const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
   const handleQuantityChange = (e) => {
+    e.preventDefault();
     const newQty = parseInt(e.target.value, 10);
-    if (newQty >= 1) {
+    if (!isNaN(newQty) && newQty >= 1) {
       onUpdateQuantity(newQty);
     }
   };
@@ -43,7 +44,13 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
       <div className="col-span-2 text-center">
         <div className="flex items-center justify-center">
           <button
-            onClick={() => onUpdateQuantity(item.quantity - 1)}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              if (item.quantity > 1) {
+                onUpdateQuantity(item.quantity - 1);
+              }
+            }}
             className="w-8 h-8 border rounded-l flex items-center justify-center text-gray-600 hover:bg-gray-100"
             disabled={item.quantity <= 1}
           >
@@ -54,10 +61,15 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
             min="1"
             value={item.quantity}
             onChange={handleQuantityChange}
+            onSubmit={(e) => e.preventDefault()}
             className="w-12 h-8 border-t border-b text-center focus:outline-none"
           />
           <button
-            onClick={() => onUpdateQuantity(item.quantity + 1)}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onUpdateQuantity(item.quantity + 1);
+            }}
             className="w-8 h-8 border rounded-r flex items-center justify-center text-gray-600 hover:bg-gray-100"
           >
             +
