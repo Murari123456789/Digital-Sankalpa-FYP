@@ -73,7 +73,7 @@ def remove_from_cart(request, cart_item_id):
         return Response({'error': 'Cart item not found'}, status=status.HTTP_404_NOT_FOUND)
 
     cart_item.delete()
-    return Response({'message': 'Item removed from your cart!'}, status=status.HTTP_204_NO_CONTENT)
+    return Response({'message': 'Item removed from your cart!'}, status=status.HTTP_200_OK)
 from esewa.payment import EsewaPayment
 
 @api_view(['POST'])
