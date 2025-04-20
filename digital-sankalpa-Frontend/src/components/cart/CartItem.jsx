@@ -1,5 +1,13 @@
 import { Link } from 'react-router-dom';
 
+// Helper function to get complete image URL
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  if (imagePath.startsWith('http')) return imagePath;
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  return `${baseUrl}${imagePath}`;
+};
+
 const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
   const handleQuantityChange = (e) => {
     e.preventDefault();
@@ -16,22 +24,20 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
           <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center mr-4">
             {item && item.image ? (
               <img
-              src={`http://localhost:8000/${item.image}`} 
-                alt={item.name}
-                className="w-full h-full object-cover"
+                src={getImageUrl(item.image)}
+                alt={item.product_name}
+                className="w-full h-full object-cover rounded"
               />
             ) : (
               <span className="text-gray-500 text-xs">No image</span>
             )}
           </div>
-          <span>{item.product_name}</span>
-
-          <div>
+          <div className="ml-4">
             <Link
               to={`/products/${item.id}`}
               className="font-medium text-gray-800 hover:text-blue-600"
             >
-              {item.name}
+              {item.product_name}
             </Link>
           </div>
         </div>

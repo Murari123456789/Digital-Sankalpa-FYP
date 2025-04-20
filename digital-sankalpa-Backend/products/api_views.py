@@ -71,7 +71,11 @@ def product_detail(request, product_id):
 
     has_bought = request.user.is_authenticated and request.user.orders.filter(cart_items__product_id=product_id).exists()
     
+    # Get related products (products in the same category, excluding current product)
+    related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
+    
     return Response({
         'product': ProductSerializer(product).data,
-        'has_bought': has_bought
+        'has_bought': has_bought,
+        'related_products': ProductSerializer(related_products, many=True).data
     })

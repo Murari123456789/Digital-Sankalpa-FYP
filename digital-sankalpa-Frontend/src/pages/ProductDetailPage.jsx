@@ -6,6 +6,14 @@ import { useAuth } from '../hooks/useAuth';
 import ProductReview from '../components/products/ProductReview';
 import Loading from '../components/common/Loading';
 
+// Helper function to get complete image URL
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  if (imagePath.startsWith('http')) return imagePath;
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  return `${baseUrl}${imagePath}`;
+};
+
 // Add these to your API functions
 const addToWishlist = async (productId) => {
   try {
@@ -87,6 +95,9 @@ const ProductDetailPage = () => {
   // Add state for active tab
   const [activeTab, setActiveTab] = useState('description');
   
+  // Add state for related products
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -94,6 +105,9 @@ const ProductDetailPage = () => {
         const data = await getProductById(id);
         setProduct(data.product);
         setReviews(data.reviews || []);
+        // Update related products from the API response
+        setRelatedProducts(data.related_products || []);
+        console.log('Related products:', data.related_products); // Debug log
       } catch (err) {
         setError('Failed to load product. Please try again later.');
         console.error(err);
@@ -266,45 +280,26 @@ const ProductDetailPage = () => {
       {/* Product Info Section */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-10">
         <div className="md:flex">
-          {/* Product Image */}
-          <div className="md:w-1/2 p-8">
-            <div className="bg-gray-50 rounded-lg h-96 flex items-center justify-center border border-gray-100">
-              {product.image ? (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="max-h-full max-w-full object-contain p-4"
-                />
-              ) : (
-                <div className="text-center p-6">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="text-gray-500">Product image not available</span>
-                </div>
-              )}
-            </div>
-
-            {/* Image thumbnails - would be populated with real thumbnails */}
-            <div className="grid grid-cols-5 gap-2 mt-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div 
-                  key={i} 
-                  className={`h-16 rounded cursor-pointer bg-gray-100 border ${i === 1 ? 'border-blue-500' : 'border-gray-200'} flex items-center justify-center`}
-                >
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={`Thumbnail ${i}`}
-                      className="max-h-full max-w-full object-contain p-1"
-                    />
-                  ) : (
-                    <span className="text-gray-400 text-xs">Image {i}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Product Image - Modified for single image */}
+<div className="md:w-1/2 p-8">
+  <div className="bg-gray-50 rounded-lg h-96 flex items-center justify-center border border-gray-100">
+    {product.image ? (
+      <img
+        src={getImageUrl(product.image)}
+        alt={product.name}
+        className="max-h-full max-w-full object-contain p-4"
+      />
+    ) : (
+      <div className="text-center p-6">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span className="text-gray-500">Product image not available</span>
+      </div>
+    )}
+  </div>
+  {/* Thumbnails grid removed */}
+</div>
           
           {/* Product Details */}
           <div className="md:w-1/2 p-8 bg-white">
@@ -707,49 +702,52 @@ const ProductDetailPage = () => {
       </div>
       
       {/* Related Products Section */}
-      <div className="mb-10">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Related Products</h2>
-          <Link to="/products" className="text-blue-600 hover:text-blue-800 font-medium">
-            View All Products
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* This would be populated with actual related products */}
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1 duration-300">
+      {relatedProducts && relatedProducts.length > 0 && (
+        <div className="mb-10">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Related Products</h2>
+            <Link to="/products" className="text-blue-600 hover:text-blue-800 font-medium">
+              View All Products
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((relatedProduct) => (
+            <div key={relatedProduct.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1 duration-300">
               <div className="relative">
-                <div className="h-56 bg-gray-100 flex items-center justify-center">
-                  <span className="text-gray-500">Product Image</span>
+                <div className="h-56 bg-gray-100 flex items-center justify-center overflow-hidden">
+                  {relatedProduct.image ? (
+                    <img
+                      src={getImageUrl(relatedProduct.image)}
+                      alt={relatedProduct.name}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <span className="text-gray-500">No Image</span>
+                  )}
                 </div>
-                <button className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-gray-100 transition-colors duration-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </button>
               </div>
               <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2 hover:text-blue-600 transition-colors duration-200">Related Product {i}</h3>
-                <div className="flex text-yellow-400 mb-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg key={star} className="h-4 w-4" fill={star <= 4 ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                  ))}
-                  <span className="ml-1 text-xs text-gray-500">(24)</span>
-                </div>
+                <h3 className="text-lg font-semibold mb-2 hover:text-blue-600 transition-colors duration-200">
+                  {relatedProduct.name}
+                </h3>
                 <div className="flex items-center justify-between mb-4">
-                  <p className="font-bold text-blue-600">Rs. 199.99</p>
-                  {i % 2 === 0 && (
+                  <p className="font-bold text-blue-600">Rs. {relatedProduct.price}</p>
+                  {relatedProduct.discount > 0 && (
                     <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Sale</span>
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  <Link to={`/products/${i}`} className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  <Link 
+                    to={`/products/${relatedProduct.id}`} 
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    onClick={() => window.scrollTo(0, 0)}
+                  >
                     View Details
                   </Link>
-                  <button className="bg-blue-600 text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                  <button 
+                    onClick={() => addToCart(relatedProduct.id)}
+                    className="bg-blue-600 text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
@@ -758,8 +756,9 @@ const ProductDetailPage = () => {
               </div>
             </div>
           ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
