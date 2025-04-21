@@ -52,7 +52,7 @@ export const updateCartItem = async (cartItemId, quantity) => {
 // Remove item from cart
 export const removeFromCart = async (cartItemId) => {
   try {
-    const response = await api.delete(`/orders/remove-from-cart/${cartItemId}/`);
+    const response = await api.delete(`/api/orders/remove-from-cart/${cartItemId}/`);
     return response.data;
   } catch (error) {
     throw error;
