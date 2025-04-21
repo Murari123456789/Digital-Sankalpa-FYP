@@ -3,27 +3,37 @@ import api from './api';
 // Get user's wishlist
 export const getWishlist = async () => {
   try {
-    const response = await api.get('/api/wishlist/');
+    const response = await api.get('/api/products/wishlist/');
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-// Add product to wishlist
+// Check if product is in wishlist
+export const checkWishlistStatus = async (productId) => {
+  try {
+    const response = await api.get(`/api/products/wishlist/${productId}/`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Add to wishlist
 export const addToWishlist = async (productId) => {
   try {
-    const response = await api.post(`/api/wishlist/${productId}/`);
+    const response = await api.post(`/api/products/wishlist/${productId}/`);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-// Remove product from wishlist
+// Remove from wishlist
 export const removeFromWishlist = async (productId) => {
   try {
-    const response = await api.delete(`/api/wishlist/${productId}/`);
+    const response = await api.delete(`/api/products/wishlist/${productId}/`);
     return response.data;
   } catch (error) {
     throw error;

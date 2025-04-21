@@ -41,7 +41,12 @@ const ProductCard = ({ product }) => {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:translate-y-[-5px]">
       <Link to={`/products/${product.id}`}>
-        <div className="h-48 bg-gray-200 flex items-center justify-center">
+        <div className="h-48 bg-gray-200 flex items-center justify-center relative">
+          {product.is_on_sale && product.sale_percentage > 0 && (
+            <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+              SALE {product.sale_percentage}% OFF
+            </div>
+          )}
           {product.image ? (
             <img 
               src={`http://localhost:8000/${product.image}`} 
@@ -64,7 +69,7 @@ const ProductCard = ({ product }) => {
               <p className="text-gray-600 line-through">Rs. {product.price}</p>
               <p className="text-blue-600 font-bold">Rs. {product.sale_price}</p>
               <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                {product.sale_percentage}% OFF
+                Save Rs. {product.price - product.sale_price}
               </span>
             </div>
           ) : (

@@ -1,23 +1,15 @@
-import api from './index';
+import api from './api';
 
 // Register a new user
 export const register = async (userData) => {
-  try {
-    const response = await api.post('/api/accounts/register/', userData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.post('/api/accounts/register/', userData);
+  return response.data;
 };
 
 // Login user and get JWT token
 export const login = async (credentials) => {
-  try {
-    const response = await api.post('/api/token/', credentials);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.post('/api/accounts/login/', credentials);
+  return response.data;
 };
 
 // Refresh JWT token
@@ -31,31 +23,24 @@ export const refreshToken = async (refreshToken) => {
 };
 
 // Get user profile
-export const getUserProfile = async () => {
-  try {
-    const response = await api.get('/api/accounts/my/account/');
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const getProfile = async () => {
+  const response = await api.get('/api/accounts/profile/');
+  return response.data;
 };
 
 // Update user profile
-export const updateUserProfile = async (userData) => {
-  try {
-    const response = await api.put('/api/accounts/my/account/', userData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const updateProfile = async (userData) => {
+  const response = await api.put('/api/accounts/profile/update/', userData);
+  return response.data;
 };
 
 // Change user password
-export const changePassword = async (passwordData) => {
-  try {
-    const response = await api.post('accounts//change_password/', passwordData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const changePassword = async (passwords) => {
+  const response = await api.post('/api/accounts/profile/change-password/', passwords);
+  return response.data;
+};
+
+export const logout = async () => {
+  const response = await api.post('/api/accounts/logout/');
+  return response.data;
 };

@@ -55,11 +55,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'DS.urls'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://localhost:3000",  # React development server
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -81,9 +80,6 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
-
-CORS_ALLOW_CREDENTIALS = True
-
 
 TEMPLATES = [
     {

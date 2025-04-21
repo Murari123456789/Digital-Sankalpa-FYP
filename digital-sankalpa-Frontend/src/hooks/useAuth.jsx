@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/api';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
 
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token) {
-      api.get('/api/accounts/my/account/')
+      api.get('/api/accounts/profile/')
         .then(response => {
           setUser(response.data);
         })
@@ -97,5 +98,19 @@ export const useAuth = () => {
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context;
+  const navigate = useNavigate();
+
+  const refreshUser = async () => {
+    try {
+      const response = await api.get('/api/accounts/profile/');
+      context.setUser(response.data);
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+    }
+  };
+
+  return {
+    ...context,
+    refreshUser,
+  };
 };

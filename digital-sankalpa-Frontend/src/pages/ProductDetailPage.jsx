@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { getProductById } from '../api/products';
+import { getProductDetails } from '../api/products';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { addToWishlist, removeFromWishlist } from '../api/wishlist';
@@ -50,7 +50,7 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const data = await getProductById(id);
+        const data = await getProductDetails(id);
         setProduct(data.product);
         setIsInWishlist(data.is_in_wishlist);
         setRelatedProducts(data.related_products);
@@ -76,7 +76,7 @@ const ProductDetailPage = () => {
       }
 
       try {
-        const response = await api.get('/api/wishlist/');
+        const response = await api.get('/api/products/wishlist/');
         const isInList = response.data.some(item => item.product.id === parseInt(id));
         setIsInWishlist(isInList);
       } catch (error) {
@@ -121,7 +121,7 @@ const ProductDetailPage = () => {
 
     try {
       await deleteReview(reviewId);
-      const data = await getProductById(id);
+      const data = await getProductDetails(id);
       setProduct(data.product);
       setReviews(data.product.reviews || []);
       if (data.user_review) {
@@ -184,7 +184,7 @@ const ProductDetailPage = () => {
       });
       
       // Update reviews list
-      const data = await getProductById(id);
+      const data = await getProductDetails(id);
       setProduct(data.product);
       setReviews(data.product.reviews || []);
       if (data.user_review) {

@@ -49,14 +49,41 @@ def logout_view(request):
     except Exception as e:
         return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
-# **Contact Form API**
-@api_view(['POST'])
-def contact(request):
-    serializer = ContactSerializer(data=request.data)
+# **User Profile**
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+# **Update Profile**
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    serializer = UserSerializer(request.user, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
-        return Response({"message": "Message sent successfully"}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Profile updated successfully!"})
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# **Change Password**
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    user = request.user
+    old_password = request.data.get("old_password")
+    new_password = request.data.get("new_password")
+
+    if not user.check_password(old_password):
+        return Response({"error": "Old password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        validate_password(new_password, user=user)
+        user.set_password(new_password)
+        user.save()
+        return Response({"message": "Password updated successfully!"})
+    except ValidationError as e:
+        return Response({"errors": e.messages}, status=status.HTTP_400_BAD_REQUEST)
 
 # **Admin Dashboard Data**
 @api_view(['GET'])
@@ -75,36 +102,70 @@ def admin_dash(request):
         'total_users': total_users
     })
 
-# **User Account API**
-@api_view(['GET', 'PUT'])
-@permission_classes([IsAuthenticated])
-def my_account(request):
-    if request.method == 'GET':
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
-    
-    elif request.method == 'PUT':
-        serializer = UserSerializer(request.user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Profile updated successfully!"})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# **Contact Form API**
+@api_view(['POST'])
+def contact(request):
+    serializer = ContactSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "Message sent successfully"}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# **Change Password API**
+# **Rewards API**
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def change_password(request):
+def claim_login_streak_reward(request):
     user = request.user
-    old_password = request.data.get("old_password")
-    new_password = request.data.get("new_password")
-
-    if not user.check_password(old_password):
-        return Response({"error": "Old password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        validate_password(new_password, user=user)
-        user.set_password(new_password)
+    if user.login_streak >= 7:
+        from discounts.models import Discount
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        discount = Discount.objects.create(
+            user=user,
+            discount_percentage=10,
+            reason="7-day login streak reward",
+            valid_until=timezone.now() + timedelta(days=7)
+        )
+        
+        user.login_streak = 0
         user.save()
-        return Response({"message": "Password updated successfully!"})
-    except ValidationError as e:
-        return Response({"errors": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({
+            'message': 'Congratulations! You have claimed your 7-day login streak reward.',
+            'discount': discount.discount_percentage,
+            'valid_until': discount.valid_until
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({
+            'error': f'You need {7 - user.login_streak} more days to claim this reward.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def claim_ink_bottle_points(request):
+    user = request.user
+    if user.ink_bottle_returns > 0:
+        from discounts.models import Discount
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        discount = Discount.objects.create(
+            user=user,
+            discount_percentage=5 * user.ink_bottle_returns,
+            reason="Ink bottle return reward",
+            valid_until=timezone.now() + timedelta(days=30)
+        )
+        
+        user.ink_bottle_returns = 0
+        user.save()
+        
+        return Response({
+            'message': f'Congratulations! You have claimed your ink bottle return reward.',
+            'discount': discount.discount_percentage,
+            'valid_until': discount.valid_until
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({
+            'error': 'You have no ink bottles to return.'
+        }, status=status.HTTP_400_BAD_REQUEST)

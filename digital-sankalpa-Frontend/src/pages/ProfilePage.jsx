@@ -4,15 +4,38 @@ import ProfileInfo from '../components/profile/ProfileInfo';
 import OrderHistory from '../components/profile/OrderHistory';
 import PasswordChange from '../components/profile/PasswordChange';
 import Loading from '../components/common/Loading';
+import api from '../api/api';
 
 const ProfilePage = () => {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   
   if (loading) {
     return <Loading />;
   }
   
+  const handleClaimLoginStreak = async () => {
+    try {
+      const response = await api.post('/api/accounts/rewards/login-streak/');
+      setSuccess(response.data.message);
+      refreshUser(); // Refresh user data to update points and streak
+    } catch (error) {
+      setError(error.response?.data?.error || 'Failed to claim reward');
+    }
+  };
+
+  const handleClaimInkBottles = async () => {
+    try {
+      const response = await api.post('/api/accounts/rewards/ink-bottles/');
+      setSuccess(response.data.message);
+      refreshUser(); // Refresh user data to update points and ink bottle count
+    } catch (error) {
+      setError(error.response?.data?.error || 'Failed to claim reward');
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-8">My Account</h1>
@@ -125,6 +148,18 @@ const ProfilePage = () => {
               <div className="p-6">
                 <h2 className="text-xl font-bold mb-4">Rewards & Points</h2>
                 
+                {error && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {error}
+                  </div>
+                )}
+                
+                {success && (
+                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    {success}
+                  </div>
+                )}
+                
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                   <div className="flex justify-between items-center">
                     <div>
@@ -153,6 +188,14 @@ const ProfilePage = () => {
                   <p className="text-sm text-gray-600 mt-2">
                     Log in for 7 consecutive days to earn 50 bonus points!
                   </p>
+                  {user.login_streak >= 7 && (
+                    <button
+                      onClick={handleClaimLoginStreak}
+                      className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    >
+                      Claim 7-Day Streak Reward
+                    </button>
+                  )}
                 </div>
                 
                 <div>
@@ -161,6 +204,14 @@ const ProfilePage = () => {
                   <p className="text-sm text-gray-600">
                     Return empty ink bottles to earn 10 points per bottle and help the environment!
                   </p>
+                  {user.ink_bottle_returns > 0 && (
+                    <button
+                      onClick={handleClaimInkBottles}
+                      className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    >
+                      Claim Ink Bottle Points
+                    </button>
+                  )}
                 </div>
               </div>
             )}

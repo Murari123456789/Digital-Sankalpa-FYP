@@ -5,6 +5,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // This is important for CORS
 });
 
 // Add request interceptor to include auth token
@@ -21,14 +22,15 @@ api.interceptors.request.use(
   }
 );
 
-// Add a response interceptor
+// Add response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
+  (error) => {
     if (error.response?.status === 401) {
-      // Clear tokens if unauthorized
+      // Handle unauthorized access
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
