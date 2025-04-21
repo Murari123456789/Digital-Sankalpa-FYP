@@ -7,7 +7,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['uuid', 'user', 'total_price', 'payment_status', 'created_at']
     list_filter = ['payment_status', 'created_at']
     search_fields = ['uuid', 'user__username']
-    readonly_fields = ['uuid', 'total_price', 'final_price', 'created_at', 'cart_items_display']
+    readonly_fields = ['uuid', 'total_price', 'final_price', 'created_at', 'cart_items_display', 'user']
     
     def cart_items_display(self, obj):
         from django.utils.html import format_html

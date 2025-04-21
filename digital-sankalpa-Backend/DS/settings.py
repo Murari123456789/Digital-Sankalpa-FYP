@@ -178,7 +178,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kathmandu'
 
 USE_I18N = True
 
@@ -257,8 +257,8 @@ JAZZMIN_SETTINGS = {
     "site_header": "Digital Sankalpa Administration",
     "site_brand": "Digital Sankalpa",
     "welcome_sign": "Welcome to Digital Sankalpa Admin",
-    "copyright": "Digital Sankalpa 2024",
-    "search_model": ["auth.User", "accounts.CustomUser", "products.Product"],
+    "copyright": "Digital Sankalpa 2025",
+    "search_model": [],
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
