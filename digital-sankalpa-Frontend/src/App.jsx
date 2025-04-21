@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './hooks/useAuth.jsx';
 import { CartProvider } from './contexts/CartContext';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';

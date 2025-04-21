@@ -1,7 +1,7 @@
 // src/pages/AdminDashboard.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth.jsx';
 import api from '../api';
 import Loading from '../components/common/Loading';
 

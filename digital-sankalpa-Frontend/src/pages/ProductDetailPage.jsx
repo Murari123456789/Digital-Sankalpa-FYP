@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getProductById } from '../api/products';
 import { useCart } from '../hooks/useCart';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth.jsx';
 import { addToWishlist, removeFromWishlist } from '../api/wishlist';
 import { createReview, deleteReview } from '../api/reviews';
 import { FaHeart, FaShoppingCart, FaStar } from 'react-icons/fa';
@@ -80,8 +80,13 @@ const ProductDetailPage = () => {
         const isInList = response.data.some(item => item.product.id === parseInt(id));
         setIsInWishlist(isInList);
       } catch (error) {
-        console.error('Error checking wishlist status:', error);
-        setIsInWishlist(false);
+        if (error.response?.status === 401) {
+          // User is not authenticated, just set wishlist to false
+          setIsInWishlist(false);
+        } else {
+          console.error('Error checking wishlist status:', error);
+          setIsInWishlist(false);
+        }
       }
     };
 

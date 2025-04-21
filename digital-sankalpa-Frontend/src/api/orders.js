@@ -62,7 +62,7 @@ export const removeFromCart = async (cartItemId) => {
 // Proceed to checkout
 export const checkout = async () => {
   try {
-    const response = await api.post('/orders/checkout/');
+    const response = await api.post('/api/orders/checkout/');
     return response.data;
   } catch (error) {
     throw error;
@@ -72,7 +72,7 @@ export const checkout = async () => {
 // Mark checkout as successful
 export const checkoutSuccess = async (orderId) => {
   try {
-    const response = await api.get(`/orders/checkout/success/${orderId}/`);
+    const response = await api.get(`/api/orders/checkout/success/${orderId}/`);
     return response.data;
   } catch (error) {
     throw error;
@@ -82,7 +82,7 @@ export const checkoutSuccess = async (orderId) => {
 // Mark checkout as failed
 export const checkoutFailure = async (orderId) => {
   try {
-    const response = await api.get(`/orders/checkout/failure/${orderId}/`);
+    const response = await api.get(`/api/orders/checkout/failure/${orderId}/`);
     return response.data;
   } catch (error) {
     throw error;

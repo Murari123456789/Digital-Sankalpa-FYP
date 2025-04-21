@@ -1,6 +1,7 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from orders.models import Order
 from .serializers import OrderSerializer
 from products.models import Product
@@ -19,6 +20,7 @@ from orders.models import CartItem
 from .serializers import CartItemSerializer
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def view_cart(request):
     cart_items = CartItem.objects.filter(user=request.user, active=True)
     serializer = CartItemSerializer(cart_items, many=True)
@@ -29,6 +31,7 @@ def view_cart(request):
     }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def add_to_cart(request, product_id):
     try:
         product = Product.objects.get(id=product_id)
@@ -49,6 +52,7 @@ def add_to_cart(request, product_id):
     }, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def update_cart_item(request, cart_item_id):
     try:
         cart_item = CartItem.objects.get(id=cart_item_id, user=request.user)
@@ -66,6 +70,7 @@ def update_cart_item(request, cart_item_id):
         return Response({'error': 'Quantity must be at least 1.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def remove_from_cart(request, cart_item_id):
     try:
         cart_item = CartItem.objects.get(id=cart_item_id, user=request.user)
@@ -77,6 +82,7 @@ def remove_from_cart(request, cart_item_id):
 from esewa.payment import EsewaPayment
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def checkout(request):
     # Get the user's cart items
     cart_items = CartItem.objects.filter(user=request.user, active=True)

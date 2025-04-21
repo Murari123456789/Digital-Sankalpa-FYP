@@ -12,7 +12,7 @@ const api = axios.create({
 // Add request interceptor to include auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -40,13 +40,13 @@ api.interceptors.response.use(
         
         // If successful, update token and retry the original request
         const { access } = response.data;
-        localStorage.setItem('token', access);
+        localStorage.setItem('accessToken', access);
         originalRequest.headers.Authorization = `Bearer ${access}`;
         
         return api(originalRequest);
       } catch (refreshError) {
         // If token refresh fails, log out the user
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         window.location.href = '/login';
         return Promise.reject(refreshError);

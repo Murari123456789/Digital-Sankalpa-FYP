@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth.jsx';
 import ProfileInfo from '../components/profile/ProfileInfo';
 import OrderHistory from '../components/profile/OrderHistory';
 import PasswordChange from '../components/profile/PasswordChange';

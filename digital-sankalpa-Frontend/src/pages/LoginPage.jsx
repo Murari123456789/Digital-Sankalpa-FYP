@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth.jsx';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -26,19 +26,16 @@ const LoginPage = () => {
       password: '',
     },
     validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { setSubmitting }) => {
       setLoginError(null);
       
       try {
-        const result = await login(values);
-        
-        if (result.success) {
-          navigate(from, { replace: true });
-        } else {
-          setLoginError(result.error);
-        }
-      } catch (err) {
-        setLoginError('Login failed. Please try again.');
+        await login(values.username, values.password);
+        navigate(from);
+      } catch (error) {
+        setLoginError(error.message || 'An error occurred during login');
+      } finally {
+        setSubmitting(false);
       }
     },
   });
