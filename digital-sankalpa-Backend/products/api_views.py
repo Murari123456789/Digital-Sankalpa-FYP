@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
-from .models import Product, Wishlist
-from .serializers import ProductSerializer, WishlistSerializer
+from .models import Product, Wishlist, Review
+from .serializers import ProductSerializer, WishlistSerializer, ReviewSerializer
 
 @api_view(['GET'])
 def product_list(request):
@@ -64,11 +64,31 @@ def product_detail(request, product_id):
         if not request.user.is_authenticated:
             return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        rating = int(request.data.get('rating', 0))
-        comment = request.data.get('comment', '')
+        # Check if user has already reviewed this product
+        if Review.objects.filter(user=request.user, product=product).exists():
+            return Response({'error': 'You have already reviewed this product'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
 
-        product.reviews.create(user=request.user, product=product, rating=rating, comment=comment)
-        return Response({'message': 'Review added successfully'}, status=status.HTTP_201_CREATED)
+        rating = request.data.get('rating')
+        comment = request.data.get('comment', '').strip()
+
+        if not rating or not isinstance(rating, (int, float)) or rating < 1 or rating > 5:
+            return Response({'error': 'Rating must be between 1 and 5'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+
+        if not comment:
+            return Response({'error': 'Comment is required'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+
+        review = Review.objects.create(
+            user=request.user,
+            product=product,
+            rating=rating,
+            comment=comment
+        )
+        
+        serializer = ReviewSerializer(review)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     has_bought = request.user.is_authenticated and request.user.orders.filter(cart_items__product_id=product_id).exists()
     
@@ -80,11 +100,20 @@ def product_detail(request, product_id):
     if request.user.is_authenticated:
         is_in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
 
+    # Get user's review if it exists
+    user_review = None
+    if request.user.is_authenticated:
+        try:
+            user_review = Review.objects.get(user=request.user, product=product)
+        except Review.DoesNotExist:
+            pass
+
     return Response({
         'product': ProductSerializer(product).data,
         'has_bought': has_bought,
         'related_products': ProductSerializer(related_products, many=True).data,
-        'is_in_wishlist': is_in_wishlist
+        'is_in_wishlist': is_in_wishlist,
+        'user_review': ReviewSerializer(user_review).data if user_review else None
     })
 
 @api_view(['GET'])
@@ -93,6 +122,21 @@ def wishlist_list(request):
     wishlist_items = Wishlist.objects.filter(user=request.user)
     serializer = WishlistSerializer(wishlist_items, many=True)
     return Response(serializer.data)
+
+@api_view(['GET', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def review_detail(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    
+    # Only allow users to delete their own reviews
+    if request.method == 'DELETE':
+        if review.user != request.user:
+            return Response({'error': 'You can only delete your own reviews'}, 
+                          status=status.HTTP_403_FORBIDDEN)
+        review.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    return Response(ReviewSerializer(review).data)
 
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])

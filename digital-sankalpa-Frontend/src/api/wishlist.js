@@ -3,7 +3,7 @@ import api from './api';
 // Get user's wishlist
 export const getWishlist = async () => {
   try {
-    const response = await api.get('/api/products/wishlist/');
+    const response = await api.get('/api/wishlist/');
     return response.data;
   } catch (error) {
     throw error;
@@ -13,7 +13,7 @@ export const getWishlist = async () => {
 // Add product to wishlist
 export const addToWishlist = async (productId) => {
   try {
-    const response = await api.post(`/api/products/wishlist/${productId}/`);
+    const response = await api.post(`/api/wishlist/${productId}/`);
     return response.data;
   } catch (error) {
     throw error;
@@ -23,7 +23,7 @@ export const addToWishlist = async (productId) => {
 // Remove product from wishlist
 export const removeFromWishlist = async (productId) => {
   try {
-    const response = await api.delete(`/api/products/wishlist/${productId}/`);
+    const response = await api.delete(`/api/wishlist/${productId}/`);
     return response.data;
   } catch (error) {
     throw error;

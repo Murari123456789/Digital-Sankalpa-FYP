@@ -11,9 +11,9 @@ export const getProducts = async (params = {}) => {
 };
 
 // Fetch single product by ID
-export const getProductById = async (productId) => {
+export const getProductById = async (id) => {
   try {
-    const response = await api.get(`/api/products/product/${productId}/`);
+    const response = await api.get(`/api/products/${id}/`);
     return response.data;
   } catch (error) {
     throw error;
@@ -22,10 +22,10 @@ export const getProductById = async (productId) => {
 
 // Add product review
 export const addProductReview = async (productId, reviewData) => {
-    try {
-      const response = await api.post(`/api/products/product/${productId}/`, reviewData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
+  try {
+    const response = await api.post(`/api/products/${productId}/`, reviewData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
