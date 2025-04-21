@@ -8,7 +8,7 @@ import { CheckCircle, AlertTriangle, ShoppingBag, Truck, CreditCard } from 'luci
 
 const OrderSuccessPage = () => {
   const { orderId } = useParams();
-  const { fetchCart } = useCart();
+  const { fetchCart, clearCart } = useCart();
   const { refreshUser } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,6 +32,7 @@ const OrderSuccessPage = () => {
           // Only refresh cart and user data once when order is loaded
           try {
             await Promise.all([fetchCart(), refreshUser()]);
+            clearCart(); // Explicitly clear the cart on the frontend
           } catch (refreshErr) {
             console.error('Error refreshing data:', refreshErr);
           }
@@ -105,7 +106,7 @@ const OrderSuccessPage = () => {
               {pointsEarned > 0 && (
                 <div className="mt-4 inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-full">
                   <span className="font-bold">+{pointsEarned}</span>&nbsp;
-                  <span className="font-medium">reward points</span>&nbsp;added to your account!
+                  <span className="font-medium">reward points</span>&nbsp;will be added to your account!
                 </div>
               )}
             </div>
@@ -307,7 +308,7 @@ const OrderSuccessPage = () => {
               {/* Actions */}
               <div className="mt-10 border-t border-gray-200 pt-8 text-center">
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <Link to="/profile" className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-md">
+                  <Link to="/profile?tab=orders" className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-md">
                     View Your Orders
                   </Link>
                   <Link to="/products" className="px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors shadow-md">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
+import { useLocation } from 'react-router-dom';
 import ProfileInfo from '../components/profile/ProfileInfo';
 import OrderHistory from '../components/profile/OrderHistory';
 import PasswordChange from '../components/profile/PasswordChange';
@@ -8,7 +9,10 @@ import api from '../api/api';
 
 const ProfilePage = () => {
   const { user, loading, logout, refreshUser } = useAuth();
-  const [activeTab, setActiveTab] = useState('profile');
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const initialTab = params.get('tab') || 'profile';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   
