@@ -380,20 +380,18 @@ const ProductDetailPage = () => {
             </div>
 
             <div className="mb-6">
-              {product.compare_at_price ? (
-                <div className="flex items-center">
-                  <span className="text-3xl font-bold text-blue-600">
-                    Rs. {product.price}
-                  </span>
-                  <span className="ml-2 text-lg text-gray-500 line-through">
-                    Rs. {product.compare_at_price}
-                  </span>
-                  <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
-                    Save{' '}
-                    {Math.round(
-                      (1 - product.price / product.compare_at_price) * 100
-                    )}
-                    %
+              {product.is_on_sale && product.sale_percentage > 0 ? (
+                <div className="flex items-center gap-4">
+                  <div>
+                    <span className="text-3xl font-bold text-blue-600">
+                      Rs. {product.sale_price}
+                    </span>
+                    <span className="ml-2 text-lg text-gray-500 line-through">
+                      Rs. {product.price}
+                    </span>
+                  </div>
+                  <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                    {product.sale_percentage}% OFF
                   </span>
                 </div>
               ) : (
@@ -952,13 +950,16 @@ const ProductDetailPage = () => {
                     </h3>
                   </Link>
                   <div className="flex items-center justify-between mb-4">
-                    <p className="font-bold text-blue-600">
-                      Rs. {relatedProduct.price}
-                    </p>
-                    {relatedProduct.discount > 0 && (
-                      <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                        Sale
-                      </span>
+                    {relatedProduct.is_on_sale && relatedProduct.sale_percentage > 0 ? (
+                      <div className="flex items-center gap-2">
+                        <p className="text-gray-600 line-through">Rs. {relatedProduct.price}</p>
+                        <p className="text-blue-600 font-bold">Rs. {relatedProduct.sale_price}</p>
+                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                          {relatedProduct.sale_percentage}% OFF
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="font-bold text-blue-600">Rs. {relatedProduct.price}</p>
                     )}
                   </div>
                   <div className="flex justify-between items-center">

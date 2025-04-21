@@ -58,7 +58,19 @@ const ProductCard = ({ product }) => {
         <Link to={`/products/${product.id}`}>
           <h3 className="text-lg font-semibold mb-2 hover:text-blue-600">{product.name}</h3>
         </Link>
-        <p className="text-gray-600 mb-4">Rs. {product.price || '0.00'}</p>
+        <div className="mb-4">
+          {product.is_on_sale && product.sale_percentage > 0 ? (
+            <div className="flex items-center gap-2">
+              <p className="text-gray-600 line-through">Rs. {product.price}</p>
+              <p className="text-blue-600 font-bold">Rs. {product.sale_price}</p>
+              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                {product.sale_percentage}% OFF
+              </span>
+            </div>
+          ) : (
+            <p className="text-gray-600">Rs. {product.price}</p>
+          )}
+        </div>
         
         <div className="flex justify-between items-center">
           <Link 

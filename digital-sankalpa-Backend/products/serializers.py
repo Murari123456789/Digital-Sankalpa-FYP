@@ -15,6 +15,7 @@ class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(source='product_reviews', many=True, read_only=True)
     average_rating = serializers.SerializerMethodField()
     total_reviews = serializers.SerializerMethodField()
+    sale_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -26,6 +27,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_total_reviews(self, obj):
         return obj.product_reviews.count()
+
+    def get_sale_price(self, obj):
+        return obj.sale_price
 
 class WishlistSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
