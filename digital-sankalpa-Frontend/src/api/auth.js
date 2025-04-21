@@ -3,7 +3,7 @@ import api from './index';
 // Register a new user
 export const register = async (userData) => {
   try {
-    const response = await api.post('/accounts/register/', userData);
+    const response = await api.post('/api/accounts/register/', userData);
     return response.data;
   } catch (error) {
     throw error;
@@ -13,7 +13,7 @@ export const register = async (userData) => {
 // Login user and get JWT token
 export const login = async (credentials) => {
   try {
-    const response = await api.post('/token/', credentials);
+    const response = await api.post('/api/token/', credentials);
     return response.data;
   } catch (error) {
     throw error;
@@ -23,7 +23,7 @@ export const login = async (credentials) => {
 // Refresh JWT token
 export const refreshToken = async (refreshToken) => {
   try {
-    const response = await api.post('/token/refresh/', { refresh: refreshToken });
+    const response = await api.post('/api/token/refresh/', { refresh: refreshToken });
     return response.data;
   } catch (error) {
     throw error;
@@ -33,7 +33,7 @@ export const refreshToken = async (refreshToken) => {
 // Get user profile
 export const getUserProfile = async () => {
   try {
-    const response = await api.get('accounts/my/account/');
+    const response = await api.get('/api/accounts/my/account/');
     return response.data;
   } catch (error) {
     throw error;
@@ -43,7 +43,7 @@ export const getUserProfile = async () => {
 // Update user profile
 export const updateUserProfile = async (userData) => {
   try {
-    const response = await api.put('accounts/my/account/', userData);
+    const response = await api.put('/api/accounts/my/account/', userData);
     return response.data;
   } catch (error) {
     throw error;

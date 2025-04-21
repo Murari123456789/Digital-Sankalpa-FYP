@@ -3,7 +3,7 @@ import api from './index';
 // Get user's orders
 export const getOrders = async () => {
   try {
-    const response = await api.get('/orders/view-orders/');
+    const response = await api.get('/api/orders/view-orders/');
     return response.data;
   } catch (error) {
     throw error;
@@ -12,7 +12,7 @@ export const getOrders = async () => {
 
 export const getOrderById = async (orderId) => {
     try {
-      const response = await api.get(`/orders/order/${orderId}/`);
+      const response = await api.get(`/api/orders/order/${orderId}/`);
       return response.data;
     } catch (error) {
       throw error;
@@ -22,7 +22,7 @@ export const getOrderById = async (orderId) => {
 // Get user's cart
 export const getCart = async () => {
   try {
-    const response = await api.get('/orders/view-cart/');
+    const response = await api.get('/api/orders/view-cart/');
     return response.data;
   } catch (error) {
     throw error;
@@ -32,7 +32,7 @@ export const getCart = async () => {
 // Add product to cart
 export const addToCart = async (productId) => {
   try {
-    const response = await api.post(`/orders/add-to-cart/${productId}/`);
+    const response = await api.post(`/api/orders/add-to-cart/${productId}/`);
     return response.data;
   } catch (error) {
     throw error;
@@ -42,7 +42,7 @@ export const addToCart = async (productId) => {
 // Update cart item quantity
 export const updateCartItem = async (cartItemId, quantity) => {
   try {
-    const response = await api.post(`/orders/update-cart-item/${cartItemId}/`, { quantity });
+    const response = await api.post(`/api/orders/update-cart-item/${cartItemId}/`, { quantity });
     return response.data;
   } catch (error) {
     throw error;

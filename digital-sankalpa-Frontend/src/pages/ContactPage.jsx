@@ -18,8 +18,42 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ type: 'success', message: 'Thank you for your message. We will get back to you soon!' });
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setStatus({ type: 'info', message: 'Sending message...' });
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/contact/send-message/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(formData),
+        credentials: 'include',
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.error('Error parsing response:', e);
+        throw new Error('Server response was not in the expected format');
+      }
+
+      if (response.ok) {
+        setStatus({ type: 'success', message: data.message });
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        const errorMessage = data?.error || 'Failed to send message. Please try again.';
+        console.error('Server error:', errorMessage);
+        setStatus({ type: 'error', message: errorMessage });
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setStatus({
+        type: 'error',
+        message: 'Failed to connect to the server. Please check your internet connection and try again.'
+      });
+    }
   };
 
   return (
@@ -36,7 +70,7 @@ const ContactPage = () => {
             </div>
             <div>
               <h3 className="font-medium">Email</h3>
-              <p>info@digitalsankalpa.com</p>
+              <p>digitalsankalpa4@gmail.com</p>
             </div>
             <div>
               <h3 className="font-medium">Phone</h3>

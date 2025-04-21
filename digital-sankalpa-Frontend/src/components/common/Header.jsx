@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
+import Logo from '/assets/images/logo.png';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -26,9 +27,8 @@ const Header = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo - Left Side */}
           <div className="flex-shrink-0">
-            <Link to="/" className="text-gray-800 font-bold text-2xl flex items-center">
-              <span className="text-blue-600">Digital</span>
-              <span className="ml-1">Sankalpa</span>
+            <Link to="/" className="flex items-center">
+              <img src={Logo} alt="Digital Sankalpa Logo" className="h-8 w-auto" />
             </Link>
           </div>
           
