@@ -10,7 +10,12 @@ const ProductCard = ({ product }) => {
   const [isAdding, setIsAdding] = useState(false);
   
   const handleAddToCart = async (e) => {
-    console.log(isAuthenticated)
+    // Check if product is out of stock
+    if (product.stock === 0) {
+      toast.error('Sorry, this product is out of stock');
+      return;
+    }
+
     // If not logged in, redirect to login
     if (!isAuthenticated) {
       // Save current page to redirect back after login
@@ -42,11 +47,21 @@ const ProductCard = ({ product }) => {
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:translate-y-[-5px]">
       <Link to={`/products/${product.id}`}>
         <div className="h-48 bg-gray-200 flex items-center justify-center relative">
-          {product.is_on_sale && product.sale_percentage > 0 && (
-            <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-              SALE {product.sale_percentage}% OFF
-            </div>
-          )}
+          {/* Badge container */}
+          <div className="absolute top-2 right-2 flex flex-col gap-2">
+            {/* Sale badge */}
+            {product.is_on_sale && product.sale_percentage > 0 && (
+              <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                SALE {product.sale_percentage}% OFF
+              </div>
+            )}
+            {/* Out of stock badge */}
+            {product.stock === 0 && (
+              <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                OUT OF STOCK
+              </div>
+            )}
+          </div>
           {product.image ? (
             <img 
               src={`http://localhost:8000/${product.image}`} 
@@ -78,18 +93,26 @@ const ProductCard = ({ product }) => {
         </div>
         
         <div className="flex justify-between items-center">
-          <Link 
-            to={`/products/${product.id}`}
-            className="text-blue-500 hover:underline"
-          >
-            View Details
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link 
+              to={`/products/${product.id}`}
+              className="text-blue-500 hover:underline"
+            >
+              View Details
+            </Link>
+            {product.stock > 0 && (
+              <span className="text-sm text-green-600">
+                In Stock
+              </span>
+            )}
+          </div>
           
           <button 
             onClick={handleAddToCart}
-            disabled={isAdding}
-            className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-blue-600 disabled:bg-blue-300"
+            disabled={isAdding || product.stock === 0}
+            className={`rounded-full w-8 h-8 flex items-center justify-center ${product.stock === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300'} text-white`}
             aria-label="Add to cart"
+            title={product.stock === 0 ? 'Out of stock' : 'Add to cart'}
           >
             {isAdding ? (
               <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

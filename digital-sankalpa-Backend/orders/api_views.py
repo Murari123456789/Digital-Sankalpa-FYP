@@ -38,13 +38,27 @@ def add_to_cart(request, product_id):
     except Product.DoesNotExist:
         return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)
-    if not created:
-        cart_item.quantity += 1
-        cart_item.save()
-    else:
-        cart_item.quantity = 1
-        cart_item.save()
+    # Check if product is in stock
+    if product.stock <= 0:
+        return Response({'error': 'This product is out of stock'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Get existing cart item or create new one
+    cart_item, created = CartItem.objects.get_or_create(
+        user=request.user,
+        product=product,
+        active=True  # Only get active cart items
+    )
+
+    # Calculate new quantity
+    new_quantity = 1 if created else cart_item.quantity + 1
+
+    # Check if we have enough stock
+    if new_quantity > product.stock:
+        return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Update cart item
+    cart_item.quantity = new_quantity
+    cart_item.save()
 
     return Response({
         'message': f'Added {product.name} to your cart.',
@@ -149,9 +163,13 @@ def checkout_success(request, order_id):
     # Update stock and deactivate cart items
     cart_items = order.cart_items.all()
     for item in cart_items:
-        item.product.stock -= item.quantity
+        # Update product stock
+        product = item.product
+        product.stock -= item.quantity
+        product.save()
+        
+        # Deactivate cart item
         item.active = False
-        item.product.save()
         item.save()
 
     order.save()
