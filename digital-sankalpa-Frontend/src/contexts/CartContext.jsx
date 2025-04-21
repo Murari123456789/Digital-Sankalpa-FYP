@@ -105,8 +105,6 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-
-
   // Calculate cart totals
   const getCartTotals = () => {
     const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -154,6 +152,11 @@ export const CartProvider = ({ children }) => {
     return cartItems.some(item => item.product_id === productId);
   };
 
+  // Clear the cart (frontend only)
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -167,7 +170,8 @@ export const CartProvider = ({ children }) => {
         checkout,
         isProductInCart,
         isAuthenticated: !!user,
-        fetchCart
+        fetchCart,
+        clearCart
       }}
     >
       {children}
