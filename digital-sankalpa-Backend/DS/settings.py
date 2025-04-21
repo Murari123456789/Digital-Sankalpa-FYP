@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-g!+chg3@&3&w+wus%r5$m3hfru6t2&%p_^&!ztbvz*(_mj49lf'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['django-tutorial.alwaysdata.net','*']
 
@@ -177,14 +177,11 @@ REST_FRAMEWORK = {
     ),
 }
 
-# Email settings
+# Email settings for Gmail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
-# For development/testing, you can use console backend
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'digitalsankalpa4@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD').replace(' ', '')  # Remove spaces from password
+DEFAULT_FROM_EMAIL = 'digitalsankalpa4@gmail.com'

@@ -47,15 +47,18 @@ Message:
 """
         
         try:
-            # Send email
-            send_mail(
-                email_subject,
-                email_message,
-                settings.EMAIL_HOST_USER,  # From email
-                [settings.EMAIL_HOST_USER],  # To email (sending to yourself)
-                fail_silently=False,
+            # Send email with better error handling
+            from django.core.mail import EmailMessage
+            email = EmailMessage(
+                subject=email_subject,
+                body=email_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[settings.EMAIL_HOST_USER],
+                reply_to=[email],
             )
-            logger.info("Email sent successfully")
+            email.send(fail_silently=False)
+            
+            logger.info(f"Email sent successfully from {email} to {settings.EMAIL_HOST_USER}")
             
             return Response({
                 'message': 'Thank you for your message. We will get back to you soon!'

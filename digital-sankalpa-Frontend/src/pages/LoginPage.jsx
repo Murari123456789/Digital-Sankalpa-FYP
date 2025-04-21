@@ -19,6 +19,25 @@ const LoginPage = () => {
     password: Yup.string().required('Password is required'),
   });
   
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoginError(null);
+    
+    if (!formik.isValid || formik.isSubmitting) {
+      return;
+    }
+    
+    try {
+      await login(formik.values.username, formik.values.password);
+      navigate(from);
+    } catch (error) {
+      setLoginError('Invalid credentials. Please check your username and password.');
+      formik.setFieldError('username', ' ');
+      formik.setFieldError('password', ' ');
+    }
+  };
+  
   // Handle form with Formik
   const formik = useFormik({
     initialValues: {
@@ -26,18 +45,7 @@ const LoginPage = () => {
       password: '',
     },
     validationSchema,
-    onSubmit: async (values, { setSubmitting }) => {
-      setLoginError(null);
-      
-      try {
-        await login(values.username, values.password);
-        navigate(from);
-      } catch (error) {
-        setLoginError(error.message || 'An error occurred during login');
-      } finally {
-        setSubmitting(false);
-      }
-    },
+    onSubmit: () => {}, // Empty onSubmit since we're handling it separately
   });
   
   return (
@@ -46,12 +54,21 @@ const LoginPage = () => {
         <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
         
         {loginError && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {loginError}
+          <div className="bg-red-100 border border-red-500 text-red-700 p-4 mb-6 rounded shadow-md">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-base font-medium">{loginError}</p>
+              </div>
+            </div>
           </div>
         )}
         
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="username" className="form-label">Username</label>
             <div className="relative">

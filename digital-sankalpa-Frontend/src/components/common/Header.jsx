@@ -14,19 +14,33 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(0);
 
-  useEffect(() => {
-    const fetchWishlistCount = async () => {
-      if (user) {
-        try {
-          const wishlistItems = await getWishlist();
-          setWishlistCount(wishlistItems.length);
-        } catch (error) {
-          console.error('Error fetching wishlist:', error);
-        }
+  const fetchWishlistCount = async () => {
+    if (user) {
+      try {
+        const wishlistItems = await getWishlist();
+        setWishlistCount(wishlistItems.length);
+      } catch (error) {
+        console.error('Error fetching wishlist:', error);
       }
+    } else {
+      setWishlistCount(0);
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlistCount();
+
+    // Add event listener for wishlist updates
+    const handleWishlistUpdate = () => {
+      fetchWishlistCount();
     };
 
-    fetchWishlistCount();
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+    };
   }, [user]);
 
   const isActivePath = (path) => {

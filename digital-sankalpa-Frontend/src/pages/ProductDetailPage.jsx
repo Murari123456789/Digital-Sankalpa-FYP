@@ -151,6 +151,8 @@ const ProductDetailPage = () => {
         setIsInWishlist(true);
         toast.success('Added to wishlist');
       }
+      // Dispatch custom event to notify wishlist changes
+      window.dispatchEvent(new CustomEvent('wishlistUpdated'));
     } catch (err) {
       console.error('Error toggling wishlist:', err);
       toast.error('Failed to update wishlist');

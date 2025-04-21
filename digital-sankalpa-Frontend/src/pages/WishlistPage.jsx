@@ -30,8 +30,10 @@ const WishlistPage = () => {
   const handleRemoveFromWishlist = async (productId) => {
     try {
       await removeFromWishlist(productId);
+      await fetchWishlist(); // Refresh the list
+      // Dispatch custom event to notify wishlist changes
+      window.dispatchEvent(new CustomEvent('wishlistUpdated'));
       toast.success('Removed from wishlist');
-      fetchWishlist(); // Refresh the list
     } catch (error) {
       console.error('Error removing from wishlist:', error);
       toast.error('Failed to remove from wishlist');
