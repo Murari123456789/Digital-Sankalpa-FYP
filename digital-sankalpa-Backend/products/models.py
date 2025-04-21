@@ -17,6 +17,7 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='product_images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_on_sale = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
