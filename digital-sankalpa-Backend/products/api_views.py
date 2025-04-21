@@ -1,10 +1,11 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Product, Wishlist
+from .serializers import ProductSerializer, WishlistSerializer
 
 @api_view(['GET'])
 def product_list(request):
@@ -74,8 +75,45 @@ def product_detail(request, product_id):
     # Get related products (products in the same category, excluding current product)
     related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
     
+    # Check if product is in user's wishlist
+    is_in_wishlist = False
+    if request.user.is_authenticated:
+        is_in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
+
     return Response({
         'product': ProductSerializer(product).data,
         'has_bought': has_bought,
-        'related_products': ProductSerializer(related_products, many=True).data
+        'related_products': ProductSerializer(related_products, many=True).data,
+        'is_in_wishlist': is_in_wishlist
     })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def wishlist_list(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user)
+    serializer = WishlistSerializer(wishlist_items, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def wishlist_toggle(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        # Add to wishlist
+        wishlist_item, created = Wishlist.objects.get_or_create(
+            user=request.user,
+            product=product
+        )
+        if created:
+            return Response({'message': 'Added to wishlist'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Already in wishlist'}, status=status.HTTP_200_OK)
+    
+    elif request.method == 'DELETE':
+        # Remove from wishlist
+        try:
+            wishlist_item = Wishlist.objects.get(user=request.user, product=product)
+            wishlist_item.delete()
+            return Response({'message': 'Removed from wishlist'}, status=status.HTTP_200_OK)
+        except Wishlist.DoesNotExist:
+            return Response({'message': 'Item not in wishlist'}, status=status.HTTP_404_NOT_FOUND)

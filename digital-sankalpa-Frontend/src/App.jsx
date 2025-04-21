@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import LocationPage from './pages/LocationPage';
 import WarrantyPage from './pages/WarrantyPage';
 import ContactPage from './pages/ContactPage';
+import WishlistPage from './pages/WishlistPage';
 
 
 function AppContent() {
@@ -43,6 +44,7 @@ function AppContent() {
             <Route path="/locations" element={<LocationPage />} />
             <Route path="/warranty" element={<WarrantyPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>

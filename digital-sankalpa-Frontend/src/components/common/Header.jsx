@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
+import { getWishlist } from '../../api/wishlist';
+import { FaHeart } from 'react-icons/fa';
 import Logo from '/assets/images/logo.png';
 
 const Header = () => {
@@ -10,6 +12,22 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  useEffect(() => {
+    const fetchWishlistCount = async () => {
+      if (user) {
+        try {
+          const wishlistItems = await getWishlist();
+          setWishlistCount(wishlistItems.length);
+        } catch (error) {
+          console.error('Error fetching wishlist:', error);
+        }
+      }
+    };
+
+    fetchWishlistCount();
+  }, [user]);
 
   const isActivePath = (path) => {
     if (path === '/') {
@@ -131,10 +149,13 @@ const Header = () => {
               </Link>
             )}
             
-            <Link to="/wishlist" className="text-gray-600 hover:text-blue-500 transition-colors duration-200">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
+            <Link to="/wishlist" className="relative text-gray-600 hover:text-blue-500 transition-colors duration-200">
+              <FaHeart className="h-5 w-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-medium rounded-full h-4 w-4 flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
             
             <Link to="/cart" className="relative text-gray-600 hover:text-blue-500 transition-colors duration-200">
