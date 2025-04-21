@@ -3,12 +3,228 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+from django.core.mail import send_mail
+from django.conf import settings
+import random
+import json
+from django.core.cache import cache
 from .models import Contact, CustomUser
 from .serializers import UserSerializer, ContactSerializer
 from products.models import Product
+
+import logging
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
+def send_otp(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            logger.info(f'Received forgot password request for email: {email}')
+            
+            if not email:
+                return JsonResponse({'error': 'Email is required'}, status=400)
+            
+            try:
+                # Get all users with this email
+                users = User.objects.filter(email=email)
+                if not users.exists():
+                    logger.warning(f'No user found with email: {email}')
+                    return JsonResponse({'error': 'No user found with this email'}, status=404)
+                
+                # Use the most recently active user if multiple exist
+                user = users.order_by('-last_login').first()
+                logger.info(f'Found user with email: {email} (username: {user.username})')
+                
+                otp = str(random.randint(100000, 999999))
+                
+                # Store OTP and user ID in cache with 10 minutes expiry
+                cache_data = {
+                    'otp': otp,
+                    'user_id': user.id
+                }
+                cache.set(f'password_reset_otp_{email}', cache_data, timeout=600)
+                logger.info(f'Stored OTP in cache for email: {email}')
+                
+                try:
+                    # Print email settings for debugging
+                    logger.info(f'Email settings: HOST={settings.EMAIL_HOST}, PORT={settings.EMAIL_PORT}, USER={settings.EMAIL_HOST_USER}')
+                    
+                    # Send OTP via email
+                    send_mail(
+                        subject='Password Reset OTP',
+                        message=f'Your OTP for password reset is: {otp}\nThis OTP will expire in 10 minutes.',
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[email],
+                        fail_silently=False,
+                    )
+                    logger.info(f'Successfully sent OTP email to: {email}')
+                    return JsonResponse({'message': 'OTP sent successfully'}, status=200)
+                    
+                except Exception as e:
+                    logger.error(f'Failed to send email: {str(e)}')
+                    return JsonResponse({
+                        'error': 'Failed to send email',
+                        'details': str(e)
+                    }, status=500)
+                
+            except User.DoesNotExist:
+                logger.warning(f'No user found with email: {email}')
+                return JsonResponse({'error': 'No user found with this email'}, status=404)
+                
+        except json.JSONDecodeError as e:
+            logger.error(f'Invalid JSON data: {str(e)}')
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        except Exception as e:
+            logger.error(f'Unexpected error in send_otp: {str(e)}')
+            return JsonResponse({
+                'error': 'Server error',
+                'details': str(e)
+            }, status=500)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def verify_otp(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            otp = data.get('otp')
+            
+            if not email or not otp:
+                return JsonResponse({'error': 'Email and OTP are required'}, status=400)
+            
+            cache_data = cache.get(f'password_reset_otp_{email}')
+            logger.info(f'Retrieved cache data for email {email}: {cache_data}')
+            
+            if not cache_data:
+                return JsonResponse({'error': 'OTP has expired. Please request a new one.'}, status=400)
+            
+            if cache_data['otp'] == otp:
+                # Generate a temporary token for password reset
+                temp_token = str(random.randint(100000, 999999))
+                # Store token with user ID
+                cache.set(f'password_reset_token_{email}', {
+                    'token': temp_token,
+                    'user_id': cache_data['user_id']
+                }, timeout=300)
+                
+                # Clear the OTP from cache
+                cache.delete(f'password_reset_otp_{email}')
+                logger.info(f'OTP verified for email {email}')
+                return JsonResponse({'message': 'OTP verified', 'token': temp_token}, status=200)
+            
+            logger.warning(f'Invalid OTP attempt for email {email}')
+            return JsonResponse({'error': 'Invalid OTP'}, status=400)
+            
+        except json.JSONDecodeError as e:
+            logger.error(f'Invalid JSON data: {str(e)}')
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        except Exception as e:
+            logger.error(f'Unexpected error in verify_otp: {str(e)}')
+            return JsonResponse({
+                'error': 'Server error',
+                'details': str(e)
+            }, status=500)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def reset_password(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            token = data.get('token')
+            new_password = data.get('new_password')
+            
+            if not all([email, token, new_password]):
+                return JsonResponse({'error': 'Email, token and new password are required'}, status=400)
+            
+            cache_data = cache.get(f'password_reset_token_{email}')
+            logger.info(f'Retrieved token data for email {email}: {cache_data}')
+            
+            if not cache_data:
+                return JsonResponse({'error': 'Reset token has expired. Please start over.'}, status=400)
+            
+            if cache_data['token'] == token:
+                try:
+                    # Get user and print their current state
+                    user = User.objects.get(id=cache_data['user_id'])
+                    logger.info(f'Found user {user.username} with ID {user.id}')
+                    
+                    # Set and verify the new password
+                    logger.info(f'Setting new password for user {user.username}')
+                    from django.contrib.auth.hashers import make_password, check_password
+                    
+                    # Generate the password hash
+                    password_hash = make_password(new_password)
+                    
+                    # Update password directly in the database
+                    from django.db import connection
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            'UPDATE accounts_customuser SET password = %s WHERE id = %s',
+                            [password_hash, user.id]
+                        )
+                    
+                    # Verify the change in database
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            'SELECT password FROM accounts_customuser WHERE id = %s',
+                            [user.id]
+                        )
+                        row = cursor.fetchone()
+                        if not row:
+                            logger.error('Could not fetch user after password update')
+                            return JsonResponse({'error': 'Failed to verify password update'}, status=500)
+                        
+                        stored_hash = row[0]
+                        if not check_password(new_password, stored_hash):
+                            logger.error('Password hash verification failed')
+                            return JsonResponse({'error': 'Failed to verify new password hash'}, status=500)
+                    
+                    # Final verification through authentication
+                    test_user = authenticate(username=user.username, password=new_password)
+                    if not test_user:
+                        logger.error(f'Failed to authenticate with new password for user {user.username}')
+                        return JsonResponse({'error': 'Failed to verify new password'}, status=500)
+                    
+                    logger.info('Password successfully updated and verified')
+                    
+                    # Clear the reset token
+                    cache.delete(f'password_reset_token_{email}')
+                    logger.info(f'Password reset and verification completed for user {user.username}')
+                    
+                    return JsonResponse({'message': 'Password reset successful'}, status=200)
+                except User.DoesNotExist:
+                    logger.error(f'User not found with ID {cache_data["user_id"]}')
+                    return JsonResponse({'error': 'User not found'}, status=404)
+                except Exception as e:
+                    logger.error(f'Failed to reset password: {str(e)}')
+                    return JsonResponse({'error': f'Failed to reset password: {str(e)}'}, status=500)
+            
+            logger.warning(f'Invalid token attempt for email {email}')
+            return JsonResponse({'error': 'Invalid reset token'}, status=400)
+            
+        except json.JSONDecodeError as e:
+            logger.error(f'Invalid JSON data: {str(e)}')
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        except Exception as e:
+            logger.error(f'Unexpected error in reset_password: {str(e)}')
+            return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 from orders.models import Order
 from django.db.models import Sum
 
@@ -26,8 +242,21 @@ def register_view(request):
 def login_view(request):
     username = request.data.get('username')
     password = request.data.get('password')
-
+    
+    # Try to find user by username first
     user = authenticate(username=username, password=password)
+    
+    # If authentication failed, try email
+    if not user:
+        try:
+            # Get user by email
+            user_obj = User.objects.filter(email=username).order_by('-last_login').first()
+            if user_obj:
+                # Try to authenticate with the found username
+                user = authenticate(username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            pass
+    
     if user:
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -35,6 +264,7 @@ def login_view(request):
             'access': str(refresh.access_token),
             'user': UserSerializer(user).data
         })
+    
     return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 # **Logout (Blacklist Token)**

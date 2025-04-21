@@ -46,18 +46,24 @@ const RegisterPage = () => {
         const result = await register(userData);
         
         if (result.success) {
-          navigate('/login', { 
-            state: { 
-              message: 'Registration successful! Please sign in with your new account.' 
-            } 
-          });
+          // Show success message
+          setRegisterError(null);
+          // Add a small delay to show the success message
+          setTimeout(() => {
+            navigate('/login', { 
+              state: { 
+                message: `Registration successful! Please sign in with your username: ${values.username}`,
+                username: values.username
+              }
+            });
+          }, 1500); // 1.5 second delay to show success message
         } else {
-          setRegisterError(result.error);
+          setRegisterError(result.error || 'Registration failed');
         }
       } catch (err) {
         setRegisterError('Registration failed. Please try again.');
       }
-    },
+    }
   });
   
   return (

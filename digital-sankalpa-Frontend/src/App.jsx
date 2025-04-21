@@ -19,11 +19,12 @@ import LocationPage from './pages/LocationPage';
 import WarrantyPage from './pages/WarrantyPage';
 import ContactPage from './pages/ContactPage';
 import WishlistPage from './pages/WishlistPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 
 function AppContent() {
   const { pathname } = useLocation();
-  const hideHeaderFooter = ['/login', '/register'].includes(pathname);
+  const hideHeaderFooter = ['/login', '/register', '/forgot-password'].includes(pathname);
 
   return (
     <CartProvider>
@@ -37,6 +38,7 @@ function AppContent() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/admin_dash" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
@@ -56,11 +58,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <AppContent />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

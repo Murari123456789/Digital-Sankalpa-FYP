@@ -59,8 +59,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (userData) => {
-    const response = await api.post('/api/accounts/register/', userData);
-    return response.data;
+    try {
+      const response = await api.post('/api/accounts/register/', userData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: error.response?.data || 'Registration failed' };
+    }
   };
 
   const updateProfile = async (userData) => {

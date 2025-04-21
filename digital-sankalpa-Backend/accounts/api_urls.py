@@ -9,7 +9,10 @@ from .api_views import (
     admin_dash,
     contact,
     claim_login_streak_reward,
-    claim_ink_bottle_points
+    claim_ink_bottle_points,
+    send_otp,
+    verify_otp,
+    reset_password
 )
 
 urlpatterns = [
@@ -23,4 +26,7 @@ urlpatterns = [
     path('contact/', contact, name='contact'),
     path('rewards/login-streak/', claim_login_streak_reward, name='claim_login_streak_reward'),
     path('rewards/ink-bottles/', claim_ink_bottle_points, name='claim_ink_bottle_points'),
+    path('forgot-password/send-otp/', send_otp, name='send_otp'),
+    path('forgot-password/verify-otp/', verify_otp, name='verify_otp'),
+    path('forgot-password/reset-password/', reset_password, name='reset_password'),
 ]

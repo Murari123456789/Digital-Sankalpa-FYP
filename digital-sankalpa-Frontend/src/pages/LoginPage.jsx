@@ -68,9 +68,22 @@ const LoginPage = () => {
           </div>
         )}
         
+        <div className="mb-6 text-right">
+          <Link 
+            to="/forgot-password" 
+            className="text-blue-500 hover:text-blue-600 text-sm cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/forgot-password');
+            }}
+          >
+            Forgot Password?
+          </Link>
+        </div>
+        
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="username" className="form-label">Username</label>
+            <label htmlFor="username" className="form-label">Username <span className="text-sm text-gray-500">(not email)</span></label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -80,7 +93,7 @@ const LoginPage = () => {
               <input
                 id="username"
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Enter your username (not your email)"
                 className={`w-full pl-10 pr-3 py-2 border rounded focus:outline-none focus:ring-2 ${
                   formik.touched.username && formik.errors.username
                     ? 'border-red-500 focus:ring-red-500'
@@ -94,7 +107,7 @@ const LoginPage = () => {
             )}
           </div>
           
-          <div className="mb-6">
+          <div className="mb-4">
             <label htmlFor="password" className="form-label">Password</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -126,9 +139,9 @@ const LoginPage = () => {
                 Remember me
               </label>
             </div>
-            <a href="#" className="text-sm text-blue-500 hover:underline">
+            <Link to="/forgot-password" className="text-sm text-blue-500 hover:underline">
               Forgot password?
-            </a>
+            </Link>
           </div>
           
           <button 
