@@ -161,7 +161,7 @@ const ProductFilter = () => {
           onClick={applyFilters}
           className="flex-1 btn-primary"
         >
-          Apply Filters
+          Apply
         </button>
         <button
           onClick={resetFilters}
