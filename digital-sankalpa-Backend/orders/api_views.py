@@ -9,11 +9,38 @@ import uuid
 from discounts.models import Discount
 from django.utils import timezone
 
+from rest_framework.pagination import PageNumberPagination
+from django.core.cache import cache
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+
+class OrderPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def view_orders(request):
-    orders = Order.objects.filter(user=request.user)
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    # Try to get from cache first
+    cache_key = f'user_orders_{request.user.id}'
+    cached_orders = cache.get(cache_key)
+
+    if cached_orders is None:
+        # If not in cache, get from database
+        orders = Order.objects.filter(user=request.user).order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+        cached_orders = serializer.data
+        # Cache for 5 minutes
+        cache.set(cache_key, cached_orders, timeout=300)
+
+    # Apply pagination
+    paginator = OrderPagination()
+    paginated_orders = paginator.paginate_queryset(cached_orders, request)
+    
+    return paginator.get_paginated_response(paginated_orders)
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from orders.models import CartItem

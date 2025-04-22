@@ -1,9 +1,14 @@
 import api from './index';
 
 // Get user's orders
-export const getOrders = async () => {
+export const getOrders = async (page = 1, pageSize = 10) => {
   try {
-    const response = await api.get('/api/orders/view-orders/');
+    const response = await api.get('/api/orders/view-orders/', {
+      params: {
+        page,
+        page_size: pageSize
+      }
+    });
     return response.data;
   } catch (error) {
     throw error;
