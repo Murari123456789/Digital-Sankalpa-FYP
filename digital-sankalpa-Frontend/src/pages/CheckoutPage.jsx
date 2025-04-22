@@ -22,6 +22,10 @@ const CheckoutPage = () => {
     city: '',
     postalCode: '',
   });
+
+  const [usePoints, setUsePoints] = useState(false);
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
+  const maxPointsAllowed = Math.min(user?.points || 0, Math.floor(getCartTotals().total * 10)); // 10 points = 1 Rs
   
   const [paymentMethod, setPaymentMethod] = useState('esewa');
   const [order, setOrder] = useState(null);
@@ -45,6 +49,18 @@ const CheckoutPage = () => {
     setPaymentMethod(method);
   };
   
+  const calculateDiscount = () => {
+    if (!usePoints || !pointsToRedeem) return 0;
+    return pointsToRedeem / 10; // Convert points to Rs (10 points = 1 Rs)
+  };
+
+  const handlePointsChange = (e) => {
+    const value = parseInt(e.target.value) || 0;
+    if (value >= 0 && value <= maxPointsAllowed) {
+      setPointsToRedeem(value);
+    }
+  };
+
   const handleInformationSubmit = (e) => {
     e.preventDefault();
     // Validate shipping information
@@ -58,13 +74,12 @@ const CheckoutPage = () => {
     setError(null);
     
     try {
-      const result = await checkout();
-      console.log('check out result')
-      console.log(result.data)
+      // Include points redemption in checkout
+      const result = await checkout(shippingInfo, paymentMethod, usePoints ? pointsToRedeem : 0);
 
       if (result.success) {
         setOrder(result.data.order);
-        setPaymentForm(result.data.payment_form); // Store the payment form HTML
+        setPaymentForm(result.data.payment_form);
         
         // If payment method is COD, redirect to success page
         if (paymentMethod === 'cod') {
@@ -120,20 +135,27 @@ const CheckoutPage = () => {
           )}
           
           {checkoutStep === 'processing' && paymentMethod === 'esewa' && (
-  <EsewaPayment 
-    order={order} 
-    paymentForm={paymentForm}  // Use the state variable instead
-  />
-)}
+            <EsewaPayment 
+              order={order} 
+              paymentForm={paymentForm}
+            />
+          )}
         </div>
         
         {/* Right Column - Order Summary */}
         <div className="md:w-1/3">
           <OrderSummary 
-            cartItems={cartItems}
+            cartItems={cartItems} 
             subtotal={subtotal}
             shippingCost={shippingCost}
             totalCost={totalCost}
+            usePoints={usePoints}
+            setUsePoints={setUsePoints}
+            pointsToRedeem={pointsToRedeem}
+            setPointsToRedeem={setPointsToRedeem}
+            maxPointsAllowed={maxPointsAllowed}
+            handlePointsChange={handlePointsChange}
+            pointDiscount={calculateDiscount()}
           />
         </div>
       </div>

@@ -105,51 +105,55 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Checkout process
-  const checkout = async () => {
-    try {
-      setLoading(true);
-      const response = await ordersApi.checkout();
-      await fetchCart(); // Refresh cart after checkout
-      return { success: true, data: response };
-    } catch (err) {
-      const errorMsg = err.response?.data?.error || 'Checkout failed';
-      setError(errorMsg);
-      return { success: false, error: errorMsg };
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   // Calculate cart totals
   const getCartTotals = () => {
-    return cartItems.reduce(
-      (totals, item) => {
-        totals.subtotal += item.total_price || 0;
-        totals.itemCount += item.quantity || 0;
-        return totals;
-      },
-      { subtotal: 0, itemCount: 0 }
-    );
+    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const shipping = subtotal > 1000 ? 0 : 100; // Free shipping over Rs. 1000
+    const total = subtotal + shipping;
+    return { subtotal, shipping, total };
+  };
+
+  // Checkout with points
+  const checkout = async (shippingInfo, paymentMethod, pointsToRedeem = 0) => {
+    try {
+      const totals = getCartTotals();
+      const checkoutData = {
+        shipping_info: shippingInfo,
+        payment_method: paymentMethod,
+        points_redeemed: pointsToRedeem,
+        total_price: totals.total,
+        shipping_fee: totals.shipping,
+        subtotal: totals.subtotal
+      };
+
+      const response = await ordersApi.checkout(checkoutData);
+      return { success: true, data: response };
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || 'Failed to complete checkout';
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
+    }
   };
 
   // For debugging purposes
+  useEffect(() => {
+    console.log('Cart Items:', cartItems);
+  }, [cartItems]);
 
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        loading,
-        error,
-        addToCart,
-        updateCartItem,
-        removeFromCart,
-        checkout,
-        fetchCart,
-        getCartTotals,
-        isAuthenticated: !!user
-      }}
-    >
+    <CartContext.Provider value={{
+      cartItems,
+      loading,
+      error,
+      addToCart,
+      updateCartItem,
+      removeFromCart,
+      getCartTotals,
+      checkout,
+      isAuthenticated: !!user
+    }}>
       {children}
     </CartContext.Provider>
   );

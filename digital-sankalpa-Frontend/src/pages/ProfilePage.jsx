@@ -214,22 +214,6 @@ const ProfilePage = () => {
                     </button>
                   )}
                 </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-2">Ink Bottle Returns</h3>
-                  <p className="text-gray-700 mb-1">Bottles Returned: {user.ink_bottle_returns || 0}</p>
-                  <p className="text-sm text-gray-600">
-                    Return empty ink bottles to earn 10 points per bottle and help the environment!
-                  </p>
-                  {user.ink_bottle_returns > 0 && (
-                    <button
-                      onClick={handleClaimInkBottles}
-                      className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    >
-                      Claim Ink Bottle Points
-                    </button>
-                  )}
-                </div>
               </div>
             )}
           </div>

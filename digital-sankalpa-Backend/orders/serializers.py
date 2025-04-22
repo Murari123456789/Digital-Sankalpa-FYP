@@ -18,10 +18,12 @@ class CartItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     cart_items = CartItemSerializer(many=True)
     total_price = serializers.SerializerMethodField()
+    points_redeemed = serializers.IntegerField()
+    point_discount = serializers.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         model = Order
-        fields = ['id', 'uuid', 'total_price', 'final_price', 'payment_status', 'cart_items']
+        fields = ['id', 'uuid', 'total_price', 'discount', 'points_redeemed', 'point_discount', 'final_price', 'payment_status', 'cart_items']
 
     def get_total_price(self, obj):
         return sum(item.product.price * item.quantity for item in obj.cart_items.all())

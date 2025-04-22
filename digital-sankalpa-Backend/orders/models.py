@@ -23,6 +23,8 @@ class Order(models.Model):
     uuid = models.CharField(max_length=8, unique=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    points_redeemed = models.PositiveIntegerField(default=0)
+    point_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     final_price = models.DecimalField(max_digits=10, decimal_places=2)
     payment_status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("completed", "Completed")])
     created_at = models.DateTimeField(auto_now_add=True)

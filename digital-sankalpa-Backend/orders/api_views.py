@@ -106,12 +106,31 @@ def checkout(request):
     # Calculate the total price of items in the cart
     total_price = sum(item.product.price * item.quantity for item in cart_items)
     
+    # Handle point redemption
+    points_redeemed = request.data.get('points_redeemed', 0)
+    point_discount = 0
+    
+    if points_redeemed:
+        # Validate points
+        if points_redeemed > request.user.points:
+            return Response({'error': 'Not enough points available'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Calculate point discount (10 points = 1 Rs)
+        point_discount = points_redeemed / 10
+        
+        # Ensure point discount doesn't exceed total price
+        if point_discount > total_price:
+            return Response({'error': 'Point discount cannot exceed total price'}, status=status.HTTP_400_BAD_REQUEST)
+    
     # Check if there's any active discount for the user
     discount = Discount.objects.filter(user=request.user, valid_until__gte=timezone.now()).last()
     if discount:
+        # Apply percentage discount first
         final_price = float(total_price) - (float(total_price) * float(discount.discount_percentage) / 100)
+        # Then apply point discount
+        final_price = max(0, final_price - point_discount)
     else:
-        final_price = total_price
+        final_price = max(0, float(total_price) - point_discount)
         discount_percentage = 0  # No discount
      
     # Create a unique order ID using uuid
@@ -123,9 +142,16 @@ def checkout(request):
         uuid=uid,
         total_price=total_price,
         discount=discount.discount_percentage if discount else 0,
+        points_redeemed=points_redeemed,
+        point_discount=point_discount,
         final_price=final_price,
         payment_status="pending"
     )
+    
+    # Deduct points from user's account
+    if points_redeemed:
+        request.user.points -= points_redeemed
+        request.user.save()
 
     # Associate the cart items with the order
     order.cart_items.set(cart_items)

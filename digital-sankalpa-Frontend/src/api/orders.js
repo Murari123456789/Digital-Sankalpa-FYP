@@ -60,9 +60,9 @@ export const removeFromCart = async (cartItemId) => {
 };
 
 // Proceed to checkout
-export const checkout = async () => {
+export const checkout = async (checkoutData) => {
   try {
-    const response = await api.post('/api/orders/checkout/');
+    const response = await api.post('/api/orders/checkout/', checkoutData);
     return response.data;
   } catch (error) {
     throw error;
