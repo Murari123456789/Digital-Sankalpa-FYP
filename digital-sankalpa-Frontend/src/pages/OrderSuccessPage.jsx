@@ -21,8 +21,8 @@ const OrderSuccessPage = () => {
         const orderData = await getOrderById(orderId);
         setOrder(orderData);
         
-        // Calculate points earned (10 points per 100 spent)
-        const points = Math.floor(orderData.final_price / 100) * 10;
+        // Calculate points earned (1 point per Rs. 10 spent)
+        const points = Math.floor(orderData.final_price / 10);
         setPointsEarned(points);
         
         // Refresh cart and user data after successful order

@@ -47,7 +47,22 @@ def product_list(request):
     # Pagination: Show 9 products per page
     paginator = Paginator(products, 9)
     page_number = request.GET.get('page', 1)
-    paginated_products = paginator.get_page(page_number)
+    try:
+        paginated_products = paginator.page(page_number)
+    except:
+        paginated_products = paginator.page(1)
+
+    # Serialize the products
+    serializer = ProductSerializer(paginated_products, many=True)
+
+    return Response({
+        'products': serializer.data,
+        'total_pages': paginator.num_pages,
+        'current_page': int(page_number),
+        'total_products': paginator.count,
+        'has_next': paginated_products.has_next(),
+        'has_previous': paginated_products.has_previous()
+    })
 
     serializer = ProductSerializer(paginated_products, many=True)
     return Response({

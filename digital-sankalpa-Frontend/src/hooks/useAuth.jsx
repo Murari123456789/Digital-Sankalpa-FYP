@@ -34,7 +34,10 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('accessToken', response.data.access);
       localStorage.setItem('refreshToken', response.data.refresh);
       setUser(response.data.user);
-      return response.data;
+      return {
+        ...response.data,
+        streak_points_earned: response.data.streak_points_earned || 0
+      };
     } catch (error) {
       if (error.response?.status === 401) {
         throw new Error('Invalid username or password');

@@ -1,9 +1,19 @@
 import api from './api';
 
-// Get all products
-export const getProducts = async () => {
+// Get all products with filters
+export const getProducts = async (params = {}) => {
   try {
-    const response = await api.get('/api/products/');
+    const queryParams = new URLSearchParams();
+    
+    // Add all params to query string
+    if (params.page) queryParams.append('page', params.page);
+    if (params.query) queryParams.append('query', params.query);
+    if (params.min_price) queryParams.append('min_price', params.min_price);
+    if (params.max_price) queryParams.append('max_price', params.max_price);
+    if (params.sort) queryParams.append('sort', params.sort);
+    if (params.categories) queryParams.append('categories', params.categories);
+    
+    const response = await api.get(`/api/products/?${queryParams.toString()}`);
     return response.data;
   } catch (error) {
     throw error;

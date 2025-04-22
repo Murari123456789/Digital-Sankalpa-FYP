@@ -165,7 +165,7 @@ const ProfilePage = () => {
                     <div>
                       <p className="text-gray-700 mb-1">Available Points</p>
                       <p className="text-2xl font-bold text-blue-600">{user.points || 0}</p>
-                      <p className="text-sm text-gray-600 mt-1">Earn 10 points for every Rs. 100 spent!</p>
+                      <p className="text-sm text-gray-600 mt-1">Earn 1 point for every Rs. 10 spent!</p>
                     </div>
                     <div className="flex flex-col gap-2">
                       <button 
@@ -182,15 +182,25 @@ const ProfilePage = () => {
                 <div className="mb-6">
                   <h3 className="font-semibold mb-2">Login Streak</h3>
                   <div className="flex items-center">
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 relative">
                       <div 
-                        className="bg-blue-600 h-2.5 rounded-full" 
-                        style={{ width: `${(user.login_streak || 0) * 14.28}%` }}
+                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
+                        style={{ width: `${Math.min((user.login_streak || 0) / 7 * 100, 100)}%` }}
                       ></div>
                     </div>
                     <span className="ml-2 text-sm text-gray-600">
                       {user.login_streak || 0}/7 days
                     </span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 mt-1 px-1">
+                    {[...Array(7)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={`w-4 h-4 rounded-full flex items-center justify-center ${i < (user.login_streak || 0) ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+                      >
+                        {i + 1}
+                      </div>
+                    ))}
                   </div>
                   <p className="text-sm text-gray-600 mt-2">
                     Log in for 7 consecutive days to earn 50 bonus points!

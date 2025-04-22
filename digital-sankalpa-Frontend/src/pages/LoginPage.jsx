@@ -19,18 +19,28 @@ const LoginPage = () => {
     password: Yup.string().required('Password is required'),
   });
   
+  const [streakMessage, setStreakMessage] = useState(null);
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoginError(null);
+    setStreakMessage(null);
     
     if (!formik.isValid || formik.isSubmitting) {
       return;
     }
     
     try {
-      await login(formik.values.username, formik.values.password);
-      navigate(from);
+      const response = await login(formik.values.username, formik.values.password);
+      if (response.streak_points_earned > 0) {
+        setStreakMessage(`Congratulations! You've earned ${response.streak_points_earned} points for your 7-day login streak! 🎉`);
+        setTimeout(() => {
+          navigate(from);
+        }, 2000); // Wait 2 seconds before redirecting
+      } else {
+        navigate(from);
+      }
     } catch (error) {
       setLoginError('Invalid credentials. Please check your username and password.');
       formik.setFieldError('username', ' ');
@@ -52,6 +62,21 @@ const LoginPage = () => {
     <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
       <div className="p-6">
         <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
+        
+        {streakMessage && (
+          <div className="bg-green-100 border border-green-500 text-green-700 p-4 mb-6 rounded shadow-md">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-base font-medium">{streakMessage}</p>
+              </div>
+            </div>
+          </div>
+        )}
         
         {loginError && (
           <div className="bg-red-100 border border-red-500 text-red-700 p-4 mb-6 rounded shadow-md">

@@ -32,21 +32,30 @@ const ProductFilter = () => {
   const applyFilters = () => {
     const newParams = new URLSearchParams(searchParams);
     
-    // Add price range filters if set
-    if (priceRange.min) {
-      newParams.set('min_price', priceRange.min);
+    // Validate price range
+    const min = parseFloat(priceRange.min);
+    const max = parseFloat(priceRange.max);
+    
+    if (!isNaN(min) && min >= 0) {
+      newParams.set('min_price', min.toString());
     } else {
       newParams.delete('min_price');
     }
     
-    if (priceRange.max) {
-      newParams.set('max_price', priceRange.max);
+    if (!isNaN(max) && max >= 0) {
+      if (min && max < min) {
+        // If max is less than min, set it equal to min
+        newParams.set('max_price', min.toString());
+        setPriceRange(prev => ({ ...prev, max: min.toString() }));
+      } else {
+        newParams.set('max_price', max.toString());
+      }
     } else {
       newParams.delete('max_price');
     }
     
     // Add sort option
-    if (sortBy) {
+    if (sortBy && sortBy !== 'newest') {
       newParams.set('sort', sortBy);
     } else {
       newParams.delete('sort');
@@ -57,6 +66,12 @@ const ProductFilter = () => {
       newParams.set('categories', selectedCategories.join(','));
     } else {
       newParams.delete('categories');
+    }
+    
+    // Keep existing search query if any
+    const query = searchParams.get('query');
+    if (query) {
+      newParams.set('query', query);
     }
     
     // Reset to page 1 when filtering
@@ -84,10 +99,13 @@ const ProductFilter = () => {
   // Handle price range input change
   const handlePriceChange = (e) => {
     const { name, value } = e.target;
-    setPriceRange(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    // Only allow positive numbers and empty string
+    if (value === '' || (/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0)) {
+      setPriceRange(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
   
   return (

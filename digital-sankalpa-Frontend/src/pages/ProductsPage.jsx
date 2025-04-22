@@ -26,6 +26,8 @@ const ProductsPage = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        setError(null);
+
         // Build params object with all filters
         const params = {
           page: currentPage,
@@ -37,11 +39,18 @@ const ProductsPage = () => {
         };
         
         const response = await getProducts(params);
+        
+        if (response.products.length === 0 && response.total_pages === 0) {
+          setError('No products found matching your criteria.');
+        }
+        
         setProducts(response.products);
         setTotalPages(response.total_pages);
       } catch (err) {
         setError('Failed to fetch products. Please try again later.');
-        console.error(err);
+        console.error('Error fetching products:', err);
+        setProducts([]);
+        setTotalPages(0);
       } finally {
         setLoading(false);
       }
@@ -59,12 +68,23 @@ const ProductsPage = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const newParams = new URLSearchParams(searchParams);
+    
+    // Update search query
     if (searchQuery.trim()) {
       newParams.set('query', searchQuery.trim());
     } else {
       newParams.delete('query');
     }
+    
+    // Reset to first page
     newParams.set('page', '1');
+    
+    // Keep other filters
+    if (minPrice) newParams.set('min_price', minPrice);
+    if (maxPrice) newParams.set('max_price', maxPrice);
+    if (sort) newParams.set('sort', sort);
+    if (categories) newParams.set('categories', categories);
+    
     setSearchParams(newParams);
   };
   

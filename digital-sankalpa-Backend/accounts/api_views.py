@@ -238,6 +238,9 @@ def register_view(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # **Login User and Return JWT Token**
+from django.utils import timezone
+from datetime import timedelta
+
 @api_view(['POST'])
 def login_view(request):
     username = request.data.get('username')
@@ -258,11 +261,33 @@ def login_view(request):
             pass
     
     if user:
+        # Check if this login is within 24 hours of the last login
+        last_login = user.last_login
+        now = timezone.now()
+        
+        if last_login and (now - last_login) <= timedelta(days=1):
+            # Increment login streak if login is within 24 hours
+            user.login_streak += 1
+            
+            # Check if user has reached 7-day streak
+            if user.login_streak == 7:
+                # Award 50 points for 7-day streak
+                user.points += 50
+                # Reset streak after awarding points
+                user.login_streak = 0
+        else:
+            # Reset streak if more than 24 hours have passed
+            user.login_streak = 1
+        
+        # Update last login time
+        user.save()
+        
         refresh = RefreshToken.for_user(user)
         return Response({
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-            'user': UserSerializer(user).data
+            'user': UserSerializer(user).data,
+            'streak_points_earned': 50 if user.login_streak == 0 else 0  # Indicate if streak points were earned
         })
     
     return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
