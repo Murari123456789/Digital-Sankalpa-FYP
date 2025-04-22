@@ -24,6 +24,12 @@ class OrderAdmin(admin.ModelAdmin):
                     # Deactivate cart item
                     cart_item.active = False
                     cart_item.save()
+                
+                # Calculate and award points (10 points per 100 spent)
+                points_to_award = int(float(obj.total_price) // 100 * 10)
+                if points_to_award > 0:
+                    obj.user.points += points_to_award
+                    obj.user.save()
 
         super().save_model(request, obj, form, change)
 

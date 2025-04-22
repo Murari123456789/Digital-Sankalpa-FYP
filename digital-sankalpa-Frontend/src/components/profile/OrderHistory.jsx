@@ -1,19 +1,37 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getOrders } from '../../api/orders';
+import { useAuth } from '../../hooks/useAuth';
 import Loading from '../common/Loading';
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { refreshUser } = useAuth();
   
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
         const response = await getOrders();
-        setOrders(response || []);
+        const newOrders = response || [];
+        setOrders(newOrders);
+        
+        // Check if any pending orders have been completed
+        const oldOrders = orders;
+        const completedOrders = newOrders.filter(newOrder => 
+          oldOrders.some(oldOrder => 
+            oldOrder.id === newOrder.id && 
+            oldOrder.payment_status !== 'completed' && 
+            newOrder.payment_status === 'completed'
+          )
+        );
+        
+        // If any orders were just completed, refresh user data for updated points
+        if (completedOrders.length > 0) {
+          await refreshUser();
+        }
       } catch (err) {
         setError('Failed to load orders. Please try again later.');
         console.error(err);
@@ -23,7 +41,13 @@ const OrderHistory = () => {
     };
     
     fetchOrders();
-  }, []);
+    
+    // Set up periodic refresh every 30 seconds
+    const intervalId = setInterval(fetchOrders, 30000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
+  }, [orders, refreshUser]);
   console.log(orders)
   // Format date
   const formatDate = (dateString) => {

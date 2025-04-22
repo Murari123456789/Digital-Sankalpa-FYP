@@ -165,9 +165,16 @@ const ProfilePage = () => {
                     <div>
                       <p className="text-gray-700 mb-1">Available Points</p>
                       <p className="text-2xl font-bold text-blue-600">{user.points || 0}</p>
+                      <p className="text-sm text-gray-600 mt-1">Earn 10 points for every Rs. 100 spent!</p>
                     </div>
-                    <div>
-                      <button className="btn-primary">Redeem Points</button>
+                    <div className="flex flex-col gap-2">
+                      <button 
+                        className="btn-primary"
+                        onClick={() => alert('Coming soon!')}
+                      >
+                        Redeem Points
+                      </button>
+                      <p className="text-xs text-gray-500 text-center">Min. 500 points needed</p>
                     </div>
                   </div>
                 </div>

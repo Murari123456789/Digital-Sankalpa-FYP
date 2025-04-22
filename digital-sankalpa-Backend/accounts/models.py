@@ -4,6 +4,7 @@ from django.db import models
 class CustomUser(AbstractUser):
     login_streak = models.IntegerField(default=0)  # Tracks consecutive logins
     ink_bottle_returns = models.IntegerField(default=0)  # Counts returned ink bottles
+    points = models.IntegerField(default=0)  # Reward points for purchases
 
     def __str__(self):
         return self.username

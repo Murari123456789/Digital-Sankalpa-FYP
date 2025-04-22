@@ -2,14 +2,17 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getOrderById } from '../api/orders';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../hooks/useAuth';
 import Loading from '../components/common/Loading';
 
 const OrderSuccessPage = () => {
   const { orderId } = useParams();
   const { fetchCart } = useCart();
+  const { refreshUser } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pointsEarned, setPointsEarned] = useState(0);
   
   useEffect(() => {
     const fetchOrder = async () => {
@@ -18,8 +21,12 @@ const OrderSuccessPage = () => {
         const orderData = await getOrderById(orderId);
         setOrder(orderData);
         
-        // Refresh cart after successful order
-        fetchCart();
+        // Calculate points earned (10 points per 100 spent)
+        const points = Math.floor(orderData.final_price / 100) * 10;
+        setPointsEarned(points);
+        
+        // Refresh cart and user data after successful order
+        await Promise.all([fetchCart(), refreshUser()]);
       } catch (err) {
         setError('Failed to load order details. Please check your email for confirmation.');
         console.error(err);
@@ -68,6 +75,11 @@ const OrderSuccessPage = () => {
               </svg>
               <h1 className="text-2xl font-bold mb-2">Thank You for Your Order!</h1>
               <p className="text-gray-600">Your order has been placed successfully.</p>
+              {pointsEarned > 0 && (
+                <div className="mt-4 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg inline-block">
+                  <span className="font-semibold">+{pointsEarned} points</span> added to your account!
+                </div>
+              )}
             </div>
             
             <div className="border rounded-lg p-4 mb-6">

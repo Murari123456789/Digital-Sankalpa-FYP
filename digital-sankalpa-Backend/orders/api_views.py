@@ -174,7 +174,17 @@ def checkout_success(request, order_id):
 
     order.save()
 
-    return Response({'message': 'Payment successful! Order processed.'}, status=status.HTTP_200_OK)
+    # Award points to user (10 points per 100 spent)
+    points_to_award = int(float(order.total_price) // 100 * 10)
+    user = order.user
+    user.points += points_to_award
+    user.save()
+
+    return Response({
+        'message': 'Payment successful! Order processed.',
+        'points_earned': points_to_award,
+        'total_points': user.points
+    }, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def checkout_failure(request, order_id):
