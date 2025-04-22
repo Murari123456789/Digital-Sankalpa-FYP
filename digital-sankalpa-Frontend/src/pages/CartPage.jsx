@@ -17,7 +17,8 @@ const CartPage = () => {
       onConfirm: () => {
         removeFromCart(item.id);
         showToast(`${item.product_name} has been removed from your cart`);
-      }
+      },
+      onCancel: () => {},
     });
   };
   

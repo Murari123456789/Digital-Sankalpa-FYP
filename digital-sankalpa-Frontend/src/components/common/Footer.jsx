@@ -120,26 +120,7 @@ const Footer = () => {
         </div>
 
         {/* Newsletter */}
-        <div className="border-t border-b py-8 mb-8">
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-lg font-bold mb-2">Subscribe Us</h3>
-            <p className="text-gray-600 mb-4">Get the latest updates on new products and special offers</p>
-            <form className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded font-medium hover:bg-blue-700"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
-        </div>
+        {/* Removed as per the instructions */}
 
         {/* Footer Bottom */}
         <div className="md:flex md:justify-between md:items-center">
