@@ -97,7 +97,7 @@ const OrderSuccessPage = () => {
               </div>
               <div className="flex justify-between">
                 <span className="font-medium">Total:</span>
-                <span>${order.final_price }</span>
+                <span>Rs. {order.final_price}</span>
               </div>
             </div>
             
@@ -144,7 +144,7 @@ const OrderSuccessPage = () => {
                           {item.quantity}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
-                          ${item.price }
+                          Rs. {item.price}
                         </td>
                       </tr>
                     ))}
@@ -155,7 +155,7 @@ const OrderSuccessPage = () => {
                         Subtotal:
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        ${order.total_price }
+                        Rs. {order.total_price}
                       </td>
                     </tr>
                     {order.discount > 0 && (
@@ -181,7 +181,7 @@ const OrderSuccessPage = () => {
                         Total:
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-bold">
-                        ${order.final_price }
+                        Rs. {order.final_price}
                       </td>
                     </tr>
                   </tfoot>

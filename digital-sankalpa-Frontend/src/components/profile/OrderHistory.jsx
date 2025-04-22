@@ -154,14 +154,9 @@ const OrderHistory = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      ${order.final_price }
+                    <div className="text-sm text-gray-900">
+                      Rs. {order.total_price}
                     </div>
-                    {order.total_price !== order.final_price && (
-                      <div className="text-xs text-gray-500 line-through">
-                        ${order.total_price }
-                      </div>
-                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.payment_status)}`}>

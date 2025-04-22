@@ -174,7 +174,7 @@ const ProfilePage = () => {
                       >
                         Redeem Points
                       </button>
-                      <p className="text-xs text-gray-500 text-center">Min. 500 points needed</p>
+                      <p className="text-xs text-gray-500 text-center">Reddem while purchasing!!!</p>
                     </div>
                   </div>
                 </div>
