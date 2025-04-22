@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import axios from 'axios';
 
 const OrderSummary = ({ 
   cartItems, 
@@ -11,8 +13,34 @@ const OrderSummary = ({
   setPointsToRedeem,
   maxPointsAllowed,
   handlePointsChange,
-  pointDiscount
+  pointDiscount,
+  onPromoApplied
 }) => {
+  const [promoCode, setPromoCode] = useState('');
+  const [promoError, setPromoError] = useState('');
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [appliedPromo, setAppliedPromo] = useState(null);
+
+  const handleApplyPromo = async () => {
+    try {
+      setPromoError('');
+      const response = await axios.post('http://localhost:8000/api/discounts/apply-promo/', {
+        code: promoCode,
+        order_total: totalCost - pointDiscount
+      });
+
+      if (response.data.valid) {
+        setPromoDiscount(response.data.discount_amount);
+        setAppliedPromo(promoCode);
+        setPromoCode('');
+        if (onPromoApplied) {
+          onPromoApplied(response.data.discount_amount);
+        }
+      }
+    } catch (error) {
+      setPromoError(error.response?.data?.message || 'Failed to apply promo code');
+    }
+  };
   return (
     <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
       <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
@@ -76,6 +104,49 @@ const OrderSummary = ({
           </div>
         )}
 
+        {/* Promo Code Section */}
+        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+          <div className="flex flex-col space-y-2">
+            {!appliedPromo ? (
+              <>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    placeholder="Enter promo code"
+                    className="form-input flex-1 text-sm"
+                  />
+                  <button
+                    onClick={handleApplyPromo}
+                    disabled={!promoCode}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 text-sm"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {promoError && (
+                  <p className="text-red-500 text-xs">{promoError}</p>
+                )}
+              </>
+            ) : (
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Applied: {appliedPromo}</span>
+                <button
+                  onClick={() => {
+                    setAppliedPromo(null);
+                    setPromoDiscount(0);
+                    if (onPromoApplied) onPromoApplied(0);
+                  }}
+                  className="text-xs text-red-500 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Points Discount */}
         {pointDiscount > 0 && (
           <div className="flex justify-between mb-2 text-green-600">
@@ -84,9 +155,17 @@ const OrderSummary = ({
           </div>
         )}
 
+        {/* Promo Discount */}
+        {promoDiscount > 0 && (
+          <div className="flex justify-between mb-2 text-green-600">
+            <span>Promo Discount</span>
+            <span>- Rs. {promoDiscount}</span>
+          </div>
+        )}
+
         <div className="flex justify-between py-2 border-t border-b mb-4">
           <span className="font-semibold">Total</span>
-          <span className="font-semibold">Rs. {totalCost - pointDiscount}</span>
+          <span className="font-semibold">Rs. {totalCost - pointDiscount - promoDiscount}</span>
         </div>
       </div>
       

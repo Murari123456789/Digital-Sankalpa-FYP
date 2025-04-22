@@ -143,55 +143,6 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      
-      {/* Category Blocks */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <Link to="/products?category=printers" className="group block bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:-translate-y-1">
-          <div className="h-40 bg-blue-50 flex items-center justify-center overflow-hidden">
-            <img
-              src="/images/category-printers.jpg"
-              alt="Printers Category"
-              className="w-full h-full object-cover"
-              onError={(e) => e.target.src = 'https://placehold.co/400x300/2563eb/ffffff?text=Printers'}
-            />
-          </div>
-          <div className="p-4 text-center">
-            <h2 className="text-xl font-semibold group-hover:text-blue-600">Printers</h2>
-            <p className="text-gray-600 mt-1">Inkjet, Laser & Photo Printers</p>
-          </div>
-        </Link>
-        
-        <Link to="/products?category=accessories" className="group block bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:-translate-y-1">
-          <div className="h-40 bg-green-50 flex items-center justify-center overflow-hidden">
-            <img
-              src="/images/category-accessories.jpg"
-              alt="Accessories Category"
-              className="w-full h-full object-cover"
-              onError={(e) => e.target.src = 'https://placehold.co/400x300/2563eb/ffffff?text=Accessories'}
-            />
-          </div>
-          <div className="p-4 text-center">
-            <h2 className="text-xl font-semibold group-hover:text-blue-600">Accessories</h2>
-            <p className="text-gray-600 mt-1">Cables, Stands & More</p>
-          </div>
-        </Link>
-        
-        <Link to="/products?category=ink" className="group block bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:-translate-y-1">
-          <div className="h-40 bg-purple-50 flex items-center justify-center overflow-hidden">
-            <img
-              src="/images/category-ink.jpg"
-              alt="Ink & Toner Category"
-              className="w-full h-full object-cover"
-              onError={(e) => e.target.src = 'https://placehold.co/400x300/2563eb/ffffff?text=Ink+and+Toner'}
-            />
-          </div>
-          <div className="p-4 text-center">
-            <h2 className="text-xl font-semibold group-hover:text-blue-600">Ink & Toner</h2>
-            <p className="text-gray-600 mt-1">Original & Compatible Cartridges</p>
-          </div>
-        </Link>
-      </div>
-      
       {/* Featured Products */}
       <div className="mb-12">
         <div className="flex justify-between items-center mb-6">

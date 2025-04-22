@@ -33,6 +33,7 @@ const CheckoutPage = () => {
 
   const [checkoutStep, setCheckoutStep] = useState('information'); // 'information', 'payment', 'processing'
   const [error, setError] = useState(null);
+  const [promoDiscount, setPromoDiscount] = useState(0);
   
   // Redirect to cart if it's empty
   if (!loading && cartItems.length === 0) {
@@ -50,8 +51,12 @@ const CheckoutPage = () => {
   };
   
   const calculateDiscount = () => {
-    if (!usePoints || !pointsToRedeem) return 0;
-    return pointsToRedeem / 10; // Convert points to Rs (10 points = 1 Rs)
+    let discount = 0;
+    if (usePoints && pointsToRedeem) {
+      discount += pointsToRedeem / 10; // Convert points to Rs (10 points = 1 Rs)
+    }
+    discount += promoDiscount;
+    return discount;
   };
 
   const handlePointsChange = (e) => {
@@ -59,6 +64,10 @@ const CheckoutPage = () => {
     if (value >= 0 && value <= maxPointsAllowed) {
       setPointsToRedeem(value);
     }
+  };
+
+  const handlePromoApplied = (amount) => {
+    setPromoDiscount(amount);
   };
 
   const handleInformationSubmit = (e) => {
@@ -75,7 +84,7 @@ const CheckoutPage = () => {
     
     try {
       // Include points redemption in checkout
-      const result = await checkout(shippingInfo, paymentMethod, usePoints ? pointsToRedeem : 0);
+      const result = await checkout(shippingInfo, paymentMethod, usePoints ? pointsToRedeem : 0, promoDiscount);
 
       if (result.success) {
         setOrder(result.data.order);
