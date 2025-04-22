@@ -15,7 +15,6 @@ import ProfilePage from './pages/ProfilePage';
 import OrderSuccessPage from './pages/OrderSuccessPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminDashboard from './pages/AdminDashboard';
-import LocationPage from './pages/LocationPage';
 import WarrantyPage from './pages/WarrantyPage';
 import ContactPage from './pages/ContactPage';
 import WishlistPage from './pages/WishlistPage';
@@ -43,7 +42,6 @@ function AppContent() {
             <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-            <Route path="/locations" element={<LocationPage />} />
             <Route path="/warranty" element={<WarrantyPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />

@@ -57,29 +57,50 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8">Contact Us</h1>
       
-      <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Get in Touch</h2>
+      {/* Contact Information and Map */}
+      <div className="grid md:grid-cols-2 gap-8 mb-12">
+        {/* Store Information */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">Digital Sankalpa</h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-medium">Address</h3>
-              <p>New Road, Kathmandu, Nepal</p>
+              <h3 className="font-semibold text-gray-700">Address:</h3>
+              <p className="text-gray-600">Newroad, Kathmandu, Nepal</p>
             </div>
             <div>
-              <h3 className="font-medium">Email</h3>
-              <p>digitalsankalpa4@gmail.com</p>
+              <h3 className="font-semibold text-gray-700">Contact:</h3>
+              <p className="text-gray-600">Phone: +977 9855080600</p>
+              <p className="text-gray-600">Email: digitalsankalpa4@gmail.com</p>
             </div>
             <div>
-              <h3 className="font-medium">Phone</h3>
-              <p>+977 9855080600</p>
+              <h3 className="font-semibold text-gray-700">Store Hours:</h3>
+              <p className="text-gray-600">Sunday - Friday: 10:00 AM - 7:00 PM</p>
+              <p className="text-gray-600">Saturday: Closed</p>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Google Maps Embed */}
+        <div className="h-[400px] rounded-lg overflow-hidden shadow-md">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.2714812211836!2d85.31028!3d27.7045!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb185ed3d6eae7%3A0x6c0a8b5b7c4bbd3f!2sDigital%20Sankalpa!5e0!3m2!1sen!2snp!4v1650123456789!5m2!1sen!2snp"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </div>
+
+        {/* Contact Form */}
+        <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-6">Send us a Message</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
           {status.message && (
             <div className={`p-4 rounded ${status.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
               {status.message}

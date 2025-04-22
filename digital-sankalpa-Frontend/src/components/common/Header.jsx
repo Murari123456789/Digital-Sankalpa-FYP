@@ -83,14 +83,7 @@ const Header = () => {
                   All Products
                 </Link>
               </li>
-              <li>
-                <Link 
-                  to="/locations" 
-                  className={`relative px-1 py-2 ${isActivePath('/locations') ? 'text-blue-600 after:absolute after:w-full after:h-0.5 after:bg-blue-600 after:bottom-0 after:left-0' : 'text-gray-700'} hover:text-blue-500 transition-colors duration-200`}
-                >
-                  Locations
-                </Link>
-              </li>
+
               <li>
                 <Link 
                   to="/warranty" 
@@ -206,15 +199,7 @@ const Header = () => {
                   All Products
                 </Link>
               </li>
-              <li>
-                <Link 
-                  to="/locations" 
-                  className={`block py-2 ${isActivePath('/locations') ? 'text-blue-600 font-medium' : 'text-gray-700'} hover:text-blue-500 transition-colors duration-200`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Locations
-                </Link>
-              </li>
+
               <li>
                 <Link 
                   to="/warranty" 
