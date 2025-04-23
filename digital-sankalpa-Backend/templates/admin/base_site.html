@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Digital Sankalpa Admin{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        Digital Sankalpa Administration
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

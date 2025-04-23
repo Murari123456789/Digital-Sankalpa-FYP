@@ -63,10 +63,25 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
+      console.log('Sending registration data:', userData);
       const response = await api.post('/api/accounts/register/', userData);
+      console.log('Registration response:', response.data);
       return { success: true, data: response.data };
     } catch (error) {
-      return { success: false, error: error.response?.data || 'Registration failed' };
+      console.error('Registration error:', error);
+      console.error('Error response:', error.response?.data);
+      if (error.response?.data) {
+        return { 
+          success: false, 
+          error: typeof error.response.data === 'object' 
+            ? Object.values(error.response.data).flat().join(', ')
+            : error.response.data
+        };
+      }
+      return { 
+        success: false, 
+        error: error.message || 'Registration failed. Please try again.'
+      };
     }
   };
 

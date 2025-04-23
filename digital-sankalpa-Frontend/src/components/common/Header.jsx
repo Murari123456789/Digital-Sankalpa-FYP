@@ -134,9 +134,9 @@ const Header = () => {
             {user ? (
               <div className="relative group">
                 <Link to="/profile" className="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition-colors duration-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
                   <span className="hidden md:inline text-sm font-medium">{user.username}</span>
                 </Link>
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">

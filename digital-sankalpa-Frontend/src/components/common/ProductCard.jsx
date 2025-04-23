@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
-import { toast } from 'react-toastify'; // If you're using toast notifications
+import { toast } from 'react-toastify';
 
 const ProductCard = ({ product }) => {
-  const { addToCart, isAuthenticated } = useCart(); // Remove 'loading' from here
+  const { addToCart, isAuthenticated, isProductInCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   const [isAdding, setIsAdding] = useState(false);
+  const [isInCart, setIsInCart] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && product) {
+      setIsInCart(isProductInCart(product.id));
+    } else {
+      setIsInCart(false);
+    }
+  }, [isAuthenticated, product, isProductInCart]);
   
   const handleAddToCart = async (e) => {
     // Check if product is out of stock
@@ -109,10 +118,10 @@ const ProductCard = ({ product }) => {
           
           <button 
             onClick={handleAddToCart}
-            disabled={isAdding || product.stock === 0}
-            className={`rounded-full w-8 h-8 flex items-center justify-center ${product.stock === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300'} text-white`}
-            aria-label="Add to cart"
-            title={product.stock === 0 ? 'Out of stock' : 'Add to cart'}
+            disabled={isAdding || product.stock === 0 || isInCart}
+            className={`rounded-full w-8 h-8 flex items-center justify-center ${product.stock === 0 ? 'bg-gray-300 cursor-not-allowed' : isInCart ? 'bg-blue-200 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300'} text-white`}
+            aria-label={isInCart ? 'Already in cart' : 'Add to cart'}
+            title={product.stock === 0 ? 'Out of stock' : isInCart ? 'Already in cart' : 'Add to cart'}
           >
             {isAdding ? (
               <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -1,15 +1,13 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
-
-User = get_user_model()
 from django.core.mail import send_mail
 from django.conf import settings
 import random
@@ -18,8 +16,12 @@ from django.core.cache import cache
 from .models import Contact, CustomUser
 from .serializers import UserSerializer, ContactSerializer
 from products.models import Product
-
+from django.contrib.auth.hashers import make_password
 import logging
+
+User = get_user_model()
+
+# Configure logging
 logger = logging.getLogger(__name__)
 
 @csrf_exempt
@@ -231,11 +233,60 @@ from django.db.models import Sum
 # **Register User**
 @api_view(['POST'])
 def register_view(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
-        return Response({"message": "Registration successful!"}, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        logger.info(f'Received registration request with data: {request.data}')
+        
+        # Create the serializer
+        serializer = UserSerializer(data=request.data)
+        
+        # Validate the data
+        try:
+            if serializer.is_valid(raise_exception=True):
+                # Save the user
+                user = serializer.save()
+                logger.info(f'Successfully registered user: {user.username}')
+                
+                # Return success response
+                return Response(
+                    {
+                        "success": True,
+                        "message": "Registration successful!",
+                        "user": {
+                            "id": user.id,
+                            "username": user.username,
+                            "email": user.email
+                        }
+                    }, 
+                    status=status.HTTP_201_CREATED
+                )
+        except serializers.ValidationError as e:
+            logger.error(f'Validation error: {str(e)}')
+            return Response(
+                {
+                    "success": False,
+                    "error": e.detail if hasattr(e, 'detail') else str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f'Error creating user: {str(e)}')
+            return Response(
+                {
+                    "success": False,
+                    "error": "An error occurred while creating your account. Please try again."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+    except Exception as e:
+        logger.error(f'Unexpected error in register_view: {str(e)}')
+        return Response(
+            {
+                "success": False,
+                "error": "An unexpected error occurred. Please try again."
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 # **Login User and Return JWT Token**
 from django.utils import timezone
