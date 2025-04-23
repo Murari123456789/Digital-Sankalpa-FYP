@@ -153,12 +153,19 @@ def review_detail(request, review_id):
     
     return Response(ReviewSerializer(review).data)
 
-@api_view(['POST', 'DELETE'])
+@api_view(['GET', 'POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def wishlist_toggle(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
-    if request.method == 'POST':
+    if request.method == 'GET':
+        # Check if item is in wishlist
+        is_in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
+        return Response({
+            'is_in_wishlist': is_in_wishlist
+        })
+    
+    elif request.method == 'POST':
         # Add to wishlist
         wishlist_item, created = Wishlist.objects.get_or_create(
             user=request.user,

@@ -14,8 +14,12 @@ export const getWishlist = async () => {
 export const checkWishlistStatus = async (productId) => {
   try {
     const response = await api.get(`/api/products/wishlist/${productId}/`);
-    return response.data;
+    return response.data.is_in_wishlist;
   } catch (error) {
+    // If we get a 401 (unauthorized) or 404 (not found), return false
+    if (error.response && (error.response.status === 401 || error.response.status === 404)) {
+      return false;
+    }
     throw error;
   }
 };
