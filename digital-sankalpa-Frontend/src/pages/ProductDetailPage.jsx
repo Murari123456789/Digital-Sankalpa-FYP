@@ -10,6 +10,15 @@ import { toast } from 'react-toastify';
 import api from '../api/api';
 import ProductReview from '../components/products/ProductReview';
 import Loading from '../components/common/Loading';
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  WhatsappShareButton,
+  FacebookIcon,
+  TwitterIcon,
+  WhatsappIcon
+} from 'react-share';
+import { FaInstagram, FaCopy, FaCheck } from 'react-icons/fa';
 
 // Helper function to get complete image URL
 const getImageUrl = (imagePath) => {
@@ -25,6 +34,7 @@ const ProductDetailPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [copied, setCopied] = useState(false);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -390,6 +400,86 @@ const ProductDetailPage = () => {
               <p className="text-gray-700">{product.description}</p>
             </div>
 
+            {/* Social Media Sharing */}
+            <div className="mb-6">
+              <p className="text-sm text-gray-600 mb-3">Share this product:</p>
+              <div className="flex space-x-4 items-center">
+                {/* Facebook Share */}
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}${location.pathname}`;
+                    const shareText = `Check out ${product.name} on Digital Sankalpa! Price: Rs. ${product.is_on_sale ? product.sale_price : product.price}`;
+                    const fbUrl = `https://www.facebook.com/share.php?u=${encodeURIComponent(shareUrl)}`;
+                    window.open(fbUrl, '_blank', 'width=600,height=400');
+                  }}
+                  className="hover:opacity-80 transition-opacity"
+                >
+                  <FacebookIcon size={32} round />
+                </button>
+
+                {/* Twitter Share */}
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}${location.pathname}`;
+                    const shareText = `Check out ${product.name} on Digital Sankalpa! Price: Rs. ${product.is_on_sale ? product.sale_price : product.price}`;
+                    const twitterUrl = `https://twitter.com/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+                    window.open(twitterUrl, '_blank', 'width=600,height=400');
+                  }}
+                  className="hover:opacity-80 transition-opacity"
+                >
+                  <TwitterIcon size={32} round />
+                </button>
+
+                {/* WhatsApp Share */}
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}${location.pathname}`;
+                    const shareText = `Check out ${product.name} on Digital Sankalpa! Price: Rs. ${product.is_on_sale ? product.sale_price : product.price}`;
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    const whatsappUrl = isMobile
+                      ? `whatsapp://send?text=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`
+                      : `https://web.whatsapp.com/send?text=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`;
+                    window.open(whatsappUrl, '_blank');
+                  }}
+                  className="hover:opacity-80 transition-opacity"
+                >
+                  <WhatsappIcon size={32} round />
+                </button>
+
+                {/* Instagram Share */}
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}${location.pathname}`;
+                    const shareText = `Check out ${product.name} on Digital Sankalpa! Price: Rs. ${product.is_on_sale ? product.sale_price : product.price}`;
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    
+                    // Copy content to clipboard
+                    navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}`).then(() => {
+                      // Try to open Instagram based on device
+                      if (isMobile) {
+                        // For mobile devices, try to open the Instagram app
+                        window.location.href = 'instagram://camera';
+                        
+                        // Fallback to Instagram website after a short delay if app doesn't open
+                        setTimeout(() => {
+                          window.location.href = 'https://www.instagram.com';
+                        }, 2000);
+                      } else {
+                        // For desktop, open Instagram website
+                        window.open('https://www.instagram.com', '_blank');
+                      }
+                      
+                      toast.success('Content copied! Opening Instagram...');
+                    });
+                  }}
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 hover:opacity-80 transition-opacity"
+                  title="Share on Instagram"
+                >
+                  <FaInstagram className="text-white text-lg" />
+                </button>
+              </div>
+            </div>
+
             <div className="space-y-6 mb-8">
               <div className="flex items-center">
                 <span className={`inline-block w-3 h-3 ${product?.stock === 0 ? 'bg-red-500' : 'bg-green-500'} rounded-full mr-2`}></span>
@@ -589,112 +679,6 @@ const ProductDetailPage = () => {
               </p>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Product Details Tabs */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-10">
-        <div className="border-b">
-          <nav className="flex">
-            <button
-              onClick={() => setActiveTab('description')}
-              className={`px-6 py-4 font-medium ${
-                activeTab === 'description'
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
-              } transition-colors duration-200`}
-            >
-              Description
-            </button>
-            <button
-              onClick={() => setActiveTab('specifications')}
-              className={`px-6 py-4 font-medium ${
-                activeTab === 'specifications'
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
-              } transition-colors duration-200`}
-            >
-              Specifications
-            </button>
-
-          </nav>
-        </div>
-
-        <div className="p-6">
-          {activeTab === 'description' && (
-            <div className="prose max-w-none">
-              <p>{product.description || 'No detailed description available.'}</p>
-            </div>
-          )}
-
-          {activeTab === 'specifications' && (
-            <div className="prose max-w-none">
-              <h3 className="text-lg font-semibold mb-4">
-                Product Specifications
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-4 rounded">
-                  <h4 className="font-medium text-gray-700 mb-2">
-                    Technical Details
-                  </h4>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span className="text-gray-600">Weight</span>
-                      <span className="font-medium">
-                        {product.weight || 'N/A'}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-600">Dimensions</span>
-                      <span className="font-medium">
-                        {product.dimensions || 'N/A'}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-600">Material</span>
-                      <span className="font-medium">
-                        {product.material || 'N/A'}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-600">Country of Origin</span>
-                      <span className="font-medium">
-                        {product.country_of_origin || 'N/A'}
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded">
-                  <h4 className="font-medium text-gray-700 mb-2">
-                    Product Information
-                  </h4>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span className="text-gray-600">Brand</span>
-                      <span className="font-medium">{product.brand || 'N/A'}</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-600">Model</span>
-                      <span className="font-medium">{product.model || 'N/A'}</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-600">SKU</span>
-                      <span className="font-medium">{product.sku || 'N/A'}</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-600">Warranty</span>
-                      <span className="font-medium">
-                        {product.warranty || '1 year'}
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
-
-
         </div>
       </div>
 

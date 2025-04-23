@@ -1,9 +1,37 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.db.models import F
 from .models import PromoCode
 from .serializers import PromoCodeSerializer
 from django.utils import timezone
+
+@api_view(['GET'])
+def list_promocodes(request):
+    """List all active promocodes"""
+    now = timezone.now()
+    
+    # First, update status of any expired promocodes
+    expired_promocodes = PromoCode.objects.filter(
+        is_active=True,
+        valid_until__lte=now
+    )
+    for promo in expired_promocodes:
+        promo.update_active_status()
+        promo.save()
+    
+    # Then get active and valid promocodes
+    promocodes = PromoCode.objects.filter(
+        is_active=True,
+        valid_from__lte=now,
+        valid_until__gt=now
+    ).exclude(
+        max_uses__gt=0,
+        current_uses__gte=F('max_uses')
+    )
+    
+    serializer = PromoCodeSerializer(promocodes, many=True)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 def validate_promo_code(request):

@@ -38,9 +38,18 @@ class PromoCode(models.Model):
             if not PromoCode.objects.filter(code=code).exists():
                 return code
 
+    def update_active_status(self):
+        """Update is_active status based on usage and date conditions."""
+        now = timezone.now()
+        if self.current_uses >= self.max_uses or now > self.valid_until:
+            self.is_active = False
+            return True
+        return False
+
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = self.generate_code()
+        self.update_active_status()
         super().save(*args, **kwargs)
 
     def __str__(self):
