@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import api from '../../api';
 
 const OrderSummary = ({ 
   cartItems, 
@@ -14,20 +14,66 @@ const OrderSummary = ({
   maxPointsAllowed,
   handlePointsChange,
   pointDiscount,
-  onPromoApplied
+  onPromoApplied,
+  onUserDiscountChange
 }) => {
+
+  const [userDiscount, setUserDiscount] = useState(null);
+  const [userDiscountAmount, setUserDiscountAmount] = useState(0);
   const [promoCode, setPromoCode] = useState('');
   const [promoError, setPromoError] = useState('');
   const [promoDiscount, setPromoDiscount] = useState(0);
   const [appliedPromo, setAppliedPromo] = useState(null);
 
+  // Fetch user's active discounts
+  useEffect(() => {
+    const fetchUserDiscounts = async () => {
+      try {
+        console.log('Fetching user discounts...');
+        const response = await api.get('/api/discounts/discounts/user/');
+        console.log('Discounts response:', response.data);
+        const discounts = response.data.discounts;
+        console.log('Found discounts:', discounts);
+        if (discounts && discounts.length > 0) {
+          // Get the highest discount if multiple exist
+          const highestDiscount = discounts.reduce((prev, current) => {
+            return (prev.discount_percentage > current.discount_percentage) ? prev : current;
+          });
+          setUserDiscount(highestDiscount);
+          
+          // Calculate discount amount
+          const discountAmount = (totalCost * highestDiscount.discount_percentage) / 100;
+          console.log('Calculated discount amount:', discountAmount, 'from percentage:', highestDiscount.discount_percentage);
+          setUserDiscountAmount(discountAmount);
+          
+          // Notify parent component of the discount amount
+          if (onUserDiscountChange) {
+            onUserDiscountChange(discountAmount);
+          }
+        } else {
+          // Reset discount if no active discounts
+          setUserDiscount(null);
+          setUserDiscountAmount(0);
+          if (onUserDiscountChange) {
+            onUserDiscountChange(0);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user discounts:', error);
+      }
+    };
+
+    fetchUserDiscounts();
+  }, [totalCost]);
+
   const handleApplyPromo = async () => {
     try {
       setPromoError('');
-      const response = await axios.post('http://localhost:8000/api/discounts/apply-promo/', {
+      const response = await api.post('/api/discounts/promocodes/apply/', {
         code: promoCode,
         order_total: totalCost - pointDiscount
       });
+
 
       if (response.data.valid) {
         setPromoDiscount(response.data.discount_amount);
@@ -147,7 +193,7 @@ const OrderSummary = ({
           </div>
         </div>
 
-        {/* Points Discount */}
+        {/* Display all discounts in order */}
         {pointDiscount > 0 && (
           <div className="flex justify-between mb-2 text-green-600">
             <span>Points Discount</span>
@@ -155,7 +201,13 @@ const OrderSummary = ({
           </div>
         )}
 
-        {/* Promo Discount */}
+        {userDiscount && (
+          <div className="flex justify-between mb-2 text-green-600">
+            <span>Personal Discount ({userDiscount.discount_percentage}%)</span>
+            <span>- Rs. {userDiscountAmount.toFixed(2)}</span>
+          </div>
+        )}
+
         {promoDiscount > 0 && (
           <div className="flex justify-between mb-2 text-green-600">
             <span>Promo Discount</span>
@@ -163,9 +215,12 @@ const OrderSummary = ({
           </div>
         )}
 
+        {/* Total after all discounts */}
         <div className="flex justify-between py-2 border-t border-b mb-4">
           <span className="font-semibold">Total</span>
-          <span className="font-semibold">Rs. {totalCost - pointDiscount - promoDiscount}</span>
+          <span className="font-semibold">
+            Rs. {Math.max(0, totalCost - pointDiscount - promoDiscount - userDiscountAmount).toFixed(2)}
+          </span>
         </div>
       </div>
       

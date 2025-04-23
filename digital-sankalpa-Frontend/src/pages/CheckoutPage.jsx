@@ -34,6 +34,7 @@ const CheckoutPage = () => {
   const [checkoutStep, setCheckoutStep] = useState('information'); // 'information', 'payment', 'processing'
   const [error, setError] = useState(null);
   const [promoDiscount, setPromoDiscount] = useState(0);
+  const [userDiscountAmount, setUserDiscountAmount] = useState(0);
   
   // Redirect to cart if it's empty
   if (!loading && cartItems.length === 0) {
@@ -50,13 +51,15 @@ const CheckoutPage = () => {
     setPaymentMethod(method);
   };
   
-  const calculateDiscount = () => {
-    let discount = 0;
+  const calculatePointDiscount = () => {
     if (usePoints && pointsToRedeem) {
-      discount += pointsToRedeem / 10; // Convert points to Rs (10 points = 1 Rs)
+      return pointsToRedeem / 10; // Convert points to Rs (10 points = 1 Rs)
     }
-    discount += promoDiscount;
-    return discount;
+    return 0;
+  };
+
+  const calculateTotalDiscount = () => {
+    return calculatePointDiscount() + promoDiscount + userDiscountAmount;
   };
 
   const handlePointsChange = (e) => {
@@ -84,7 +87,8 @@ const CheckoutPage = () => {
     
     try {
       // Include points redemption in checkout
-      const result = await checkout(shippingInfo, paymentMethod, usePoints ? pointsToRedeem : 0, promoDiscount);
+      const pointDiscount = calculatePointDiscount();
+      const result = await checkout(shippingInfo, paymentMethod, usePoints ? pointsToRedeem : 0, promoDiscount, userDiscountAmount);
 
       if (result.success) {
         setOrder(result.data.order);
@@ -164,7 +168,8 @@ const CheckoutPage = () => {
             setPointsToRedeem={setPointsToRedeem}
             maxPointsAllowed={maxPointsAllowed}
             handlePointsChange={handlePointsChange}
-            pointDiscount={calculateDiscount()}
+            pointDiscount={calculatePointDiscount()}
+            onUserDiscountChange={setUserDiscountAmount}
           />
         </div>
       </div>

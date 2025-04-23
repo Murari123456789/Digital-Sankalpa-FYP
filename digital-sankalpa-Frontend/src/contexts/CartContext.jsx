@@ -115,17 +115,24 @@ export const CartProvider = ({ children }) => {
     return { subtotal, shipping, total };
   };
 
-  // Checkout with points
-  const checkout = async (shippingInfo, paymentMethod, pointsToRedeem = 0) => {
+  // Checkout with points and discounts
+  const checkout = async (shippingInfo, paymentMethod, pointsToRedeem = 0, promoDiscount = 0, userDiscount = 0) => {
     try {
       const totals = getCartTotals();
+      // Calculate final price after all discounts
+      const totalDiscount = pointsToRedeem / 10 + promoDiscount + userDiscount;
+      const finalPrice = Math.max(0, totals.total - totalDiscount);
+
       const checkoutData = {
         shipping_info: shippingInfo,
         payment_method: paymentMethod,
         points_redeemed: pointsToRedeem,
         total_price: totals.total,
         shipping_fee: totals.shipping,
-        subtotal: totals.subtotal
+        subtotal: totals.subtotal,
+        promo_discount: promoDiscount,
+        user_discount: userDiscount,
+        final_price: finalPrice
       };
 
       const response = await ordersApi.checkout(checkoutData);

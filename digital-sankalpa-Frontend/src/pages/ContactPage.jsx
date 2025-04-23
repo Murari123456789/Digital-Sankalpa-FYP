@@ -205,8 +205,8 @@ const ContactPage = () => {
           <div className="bg-white rounded-xl shadow-lg overflow-hidden h-[600px] relative group -mt-16">
             {/* Map Overlay on Hover */}
             <div className="absolute inset-0 bg-gradient-to-b from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.2714812211836!2d85.31028!3d27.7045!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb185ed3d6eae7%3A0x6c0a8b5b7c4bbd3f!2sDigital%20Sankalpa!5e0!3m2!1sen!2snp!4v1650123456789!5m2!1sen!2snp"
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.4506295679557!2d85.30845757577762!3d27.70336962566622!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb190056830f27%3A0xfc66eb131da0bea2!2sDigital%20Sankalpa!5e0!3m2!1sen!2snp!4v1745438774319!5m2!1sen!2snp" 
               width="100%"
               height="100%"
               style={{ border: 0 }}

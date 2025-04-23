@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import api from '../../api';
 
 const PromoSection = () => {
   const [promocodes, setPromocodes] = useState([]);
@@ -31,20 +32,9 @@ const PromoSection = () => {
 
   const fetchPromocodes = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/discounts/');
-      if (!response.ok) throw new Error('Failed to fetch promocodes');
-      const data = await response.json();
-      // Filter out expired or inactive promocodes
-      const activePromocodes = data.filter(promo => {
-        const now = new Date();
-        const validFrom = new Date(promo.valid_from);
-        const validUntil = new Date(promo.valid_until);
-        return promo.is_active && 
-               now >= validFrom && 
-               validUntil > now && 
-               (!promo.max_uses || promo.current_uses < promo.max_uses);
-      });
-      setPromocodes(activePromocodes);
+      const response = await api.get('/api/discounts/promocodes/');
+      // The backend already filters active promocodes
+      setPromocodes(response.data);
     } catch (error) {
       console.error('Error fetching promocodes:', error);
     }

@@ -175,7 +175,8 @@ def checkout(request):
         points_redeemed=points_redeemed,
         point_discount=point_discount,
         final_price=final_price,
-        payment_status="pending"
+        payment_status="pending",
+        used_discount=discount
     )
     
     # Deduct points from user's account
@@ -215,6 +216,12 @@ def checkout_success(request, order_id):
     # Retrieve the order and mark it as completed
     order = Order.objects.get(id=order_id)
     order.payment_status = "completed"
+
+    # Deactivate the used discount if any
+    if order.used_discount:
+        # Set valid_until to now to make it inactive
+        order.used_discount.valid_until = timezone.now()
+        order.used_discount.save()
 
     # Update stock and deactivate cart items
     cart_items = order.cart_items.all()

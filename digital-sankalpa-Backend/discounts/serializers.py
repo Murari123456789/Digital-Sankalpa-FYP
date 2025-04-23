@@ -1,5 +1,14 @@
 from rest_framework import serializers
-from .models import PromoCode
+from .models import PromoCode, Discount
+from accounts.serializers import UserSerializer
+
+class DiscountSerializer(serializers.ModelSerializer):
+    user_details = UserSerializer(source='user', read_only=True)
+
+    class Meta:
+        model = Discount
+        fields = ['id', 'user', 'user_details', 'discount_percentage', 'reason', 'valid_until']
+        read_only_fields = ['id']
 
 class PromoCodeSerializer(serializers.ModelSerializer):
     uses_remaining = serializers.SerializerMethodField()
