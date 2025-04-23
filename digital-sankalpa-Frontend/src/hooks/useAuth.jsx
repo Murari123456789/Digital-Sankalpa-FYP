@@ -63,25 +63,48 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      console.log('Sending registration data:', userData);
       const response = await api.post('/api/accounts/register/', userData);
-      console.log('Registration response:', response.data);
       return { success: true, data: response.data };
     } catch (error) {
       console.error('Registration error:', error);
-      console.error('Error response:', error.response?.data);
+      console.error('Error response data:', error.response?.data);
+
       if (error.response?.data) {
-        return { 
-          success: false, 
-          error: typeof error.response.data === 'object' 
-            ? Object.values(error.response.data).flat().join(', ')
-            : error.response.data
-        };
+        const errorData = error.response.data;
+
+        // If the error data has error object
+        if (errorData.error && typeof errorData.error === 'object') {
+          // Check for username error
+          if (errorData.error.username) {
+            return { 
+              success: false, 
+              error: 'User already exists with this username'
+            };
+          }
+          // Check for email error
+          if (errorData.error.email) {
+            return { 
+              success: false, 
+              error: 'User already exists with this email'
+            };
+          }
+          // For other error messages in the error object
+          const errorMessages = Object.values(errorData.error)
+            .flat()
+            .filter(msg => msg)
+            .join(', ');
+          if (errorMessages) {
+            return { success: false, error: errorMessages };
+          }
+        }
+
+        // If error data has a direct message
+        if (errorData.message) {
+          return { success: false, error: errorData.message };
+        }
       }
-      return { 
-        success: false, 
-        error: error.message || 'Registration failed. Please try again.'
-      };
+      
+      return { success: false, error: 'Registration failed. Please try again.' };
     }
   };
 

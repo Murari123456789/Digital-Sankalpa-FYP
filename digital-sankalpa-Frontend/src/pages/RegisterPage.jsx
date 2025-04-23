@@ -19,8 +19,12 @@ const RegisterPage = () => {
       .required('Email is required'),
     password: Yup.string()
       .min(8, 'Password must be at least 8 characters')
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+      )
       .required('Password is required'),
-      passwordConfirm: Yup.string()
+    passwordConfirm: Yup.string()
       .oneOf([Yup.ref('password'), null], 'Passwords must match')
       .required('Please confirm your password'),
   });
@@ -43,12 +47,11 @@ const RegisterPage = () => {
           ...rest,
           password_confirm: passwordConfirm
         };
+        
         const result = await register(userData);
         
         if (result.success) {
-          // Show success message
           setRegisterError(null);
-          // Add a small delay to show the success message
           setTimeout(() => {
             navigate('/login', { 
               state: { 
@@ -56,11 +59,20 @@ const RegisterPage = () => {
                 username: values.username
               }
             });
-          }, 1500); // 1.5 second delay to show success message
+          }, 1500);
         } else {
-          setRegisterError(result.error || 'Registration failed');
+          // Handle error response
+          if (typeof result.error === 'object') {
+            // If error is an object, extract the message
+            const errorMessage = Object.values(result.error)[0];
+            setRegisterError(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage);
+          } else {
+            // If error is a string, use it directly
+            setRegisterError(result.error);
+          }
         }
       } catch (err) {
+        console.error('Registration error:', err);
         setRegisterError('Registration failed. Please try again.');
       }
     }
@@ -72,10 +84,15 @@ const RegisterPage = () => {
         <h2 className="text-2xl font-bold text-center mb-6">Create an Account</h2>
         
         {registerError && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {typeof registerError === 'string' 
-              ? registerError 
-              : Object.values(registerError).flat().join(', ')}
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 relative">
+            <div className="flex items-center">
+              <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <div className="font-medium text-sm">
+                {registerError}
+              </div>
+            </div>
           </div>
         )}
         
