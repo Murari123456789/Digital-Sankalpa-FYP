@@ -92,6 +92,7 @@ ROOT_URLCONF = 'DS.urls'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React development server
+    "http://localhost:3001",  # Additional React port
 ]
 
 CORS_ALLOW_CREDENTIALS = True
