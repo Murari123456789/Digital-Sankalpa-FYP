@@ -4,13 +4,20 @@ import CartItem from '../components/cart/CartItem';
 import Loading from '../components/common/Loading';
 
 const CartPage = () => {
-  const { cartItems, loading, error, removeFromCart, updateCartItem, getCartTotals } = useCart();
+  const { cartItems, loading, error, removeFromCart, updateCartItem } = useCart();
   
   if (loading) {
     return <Loading />;
   }
   
-  const { subtotal, itemCount } = getCartTotals();
+  // Calculate totals
+  const calculateTotals = () => {
+    const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return { itemCount, subtotal };
+  };
+
+  const { subtotal, itemCount } = calculateTotals();
   const shipping = 0; // Free shipping
   const total = subtotal + shipping;
   
@@ -66,14 +73,16 @@ const CartPage = () => {
               </div>
             </div>
             
-            <div>
-              {cartItems.map((item) => (
-                <CartItem 
-                  key={item.id} 
-                  item={item} 
-                  onUpdateQuantity={(quantity) => updateCartItem(item.id, quantity)}
-                  onRemove={() => removeFromCart(item.id)}
-                />
+            <div className="flex flex-col">
+              {[...cartItems]
+                .sort((a, b) => a.product_name.localeCompare(b.product_name))
+                .map((item) => (
+                  <CartItem 
+                    key={item.id} 
+                    item={item} 
+                    onUpdateQuantity={(quantity) => updateCartItem(item.id, quantity)}
+                    onRemove={() => removeFromCart(item.id)}
+                  />
               ))}
             </div>
           </div>

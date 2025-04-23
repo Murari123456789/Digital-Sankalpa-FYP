@@ -16,6 +16,20 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
       onUpdateQuantity(newQty);
     }
   };
+
+  const handleIncrement = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onUpdateQuantity(item.quantity + 1);
+  };
+
+  const handleDecrement = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (item.quantity > 1) {
+      onUpdateQuantity(item.quantity - 1);
+    }
+  };
   
   return (
     <div className="grid grid-cols-12 gap-4 p-4 border-b items-center">
@@ -44,20 +58,15 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
       </div>
       
       <div className="col-span-2 text-center">
-        Rs. {item.total_price}
+        Rs. {item.price}
       </div>
       
       <div className="col-span-2 text-center">
         <div className="flex items-center justify-center">
           <button
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              if (item.quantity > 1) {
-                onUpdateQuantity(item.quantity - 1);
-              }
-            }}
-            className="w-8 h-8 border rounded-l flex items-center justify-center text-gray-600 hover:bg-gray-100"
+            onClick={handleDecrement}
+            className="w-8 h-8 border rounded-l flex items-center justify-center text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={item.quantity <= 1}
           >
             -
@@ -67,15 +76,17 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
             min="1"
             value={item.quantity}
             onChange={handleQuantityChange}
-            onSubmit={(e) => e.preventDefault()}
             className="w-12 h-8 border-t border-b text-center focus:outline-none"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.target.blur();
+              }
+            }}
           />
           <button
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              onUpdateQuantity(item.quantity + 1);
-            }}
+            onClick={handleIncrement}
             className="w-8 h-8 border rounded-r flex items-center justify-center text-gray-600 hover:bg-gray-100"
           >
             +
@@ -84,7 +95,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
       </div>
       
       <div className="col-span-2 text-right font-medium">
-        Rs. {item.total_price}
+        Rs. {item.price * item.quantity}
         <button
           onClick={onRemove}
           className="ml-3 text-red-500 hover:text-red-700"

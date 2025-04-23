@@ -142,18 +142,26 @@ export const CartProvider = ({ children }) => {
     console.log('Cart Items:', cartItems);
   }, [cartItems]);
 
+  // Check if a product is in cart
+  const isProductInCart = (productId) => {
+    return cartItems.some(item => item.product_id === productId);
+  };
+
   return (
-    <CartContext.Provider value={{
-      cartItems,
-      loading,
-      error,
-      addToCart,
-      updateCartItem,
-      removeFromCart,
-      getCartTotals,
-      checkout,
-      isAuthenticated: !!user
-    }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        loading,
+        error,
+        addToCart,
+        updateCartItem,
+        removeFromCart,
+        getCartTotals,
+        checkout,
+        isProductInCart,
+        isAuthenticated: !!user
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

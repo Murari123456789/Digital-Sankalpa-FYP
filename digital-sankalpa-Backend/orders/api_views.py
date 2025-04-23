@@ -69,23 +69,26 @@ def add_to_cart(request, product_id):
     if product.stock <= 0:
         return Response({'error': 'This product is out of stock'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Get existing cart item or create new one
-    cart_item, created = CartItem.objects.get_or_create(
+    # Check if product already exists in cart
+    existing_item = CartItem.objects.filter(
         user=request.user,
         product=product,
-        active=True  # Only get active cart items
+        active=True
+    ).first()
+
+    if existing_item:
+        return Response({
+            'error': 'This item is already in your cart',
+            'cart_item': CartItemSerializer(existing_item).data
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Create new cart item
+    cart_item = CartItem.objects.create(
+        user=request.user,
+        product=product,
+        quantity=1,
+        active=True
     )
-
-    # Calculate new quantity
-    new_quantity = 1 if created else cart_item.quantity + 1
-
-    # Check if we have enough stock
-    if new_quantity > product.stock:
-        return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Update cart item
-    cart_item.quantity = new_quantity
-    cart_item.save()
 
     return Response({
         'message': f'Added {product.name} to your cart.',

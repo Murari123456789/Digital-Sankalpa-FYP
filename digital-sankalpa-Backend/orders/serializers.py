@@ -4,13 +4,14 @@ from products.models import Product
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name')
+    product_id = serializers.IntegerField(source='product.id')
     image = serializers.ImageField(source='product.image')
     price = serializers.DecimalField(source='product.price', max_digits=10, decimal_places=2)
     total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
-        fields = ['id', 'product_name', 'image', 'price', 'quantity', 'total_price']
+        fields = ['id', 'product_name', 'product_id', 'image', 'price', 'quantity', 'total_price']
 
     def get_total_price(self, obj):
         return obj.product.price * obj.quantity

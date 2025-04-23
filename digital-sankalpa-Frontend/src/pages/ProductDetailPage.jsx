@@ -30,7 +30,7 @@ const getImageUrl = (imagePath) => {
 
 const ProductDetailPage = () => {
   const { id } = useParams();
-  const { addToCart, isAuthenticated } = useCart();
+  const { addToCart, isProductInCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,6 +54,7 @@ const ProductDetailPage = () => {
   const [comment, setComment] = useState('');
   const [userReview, setUserReview] = useState(null);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [isInCart, setIsInCart] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -76,6 +77,15 @@ const ProductDetailPage = () => {
 
     fetchProduct();
   }, [id]);
+
+  // Update cart status whenever product or cart items change
+  useEffect(() => {
+    if (user && product) {
+      setIsInCart(isProductInCart(product.id));
+    } else {
+      setIsInCart(false);
+    }
+  }, [user, product, isProductInCart]);
 
   useEffect(() => {
     const checkWishlistStatus = async () => {
@@ -103,20 +113,31 @@ const ProductDetailPage = () => {
   }, [id, user]);
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) {
+    if (!user) {
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
+
     if (product.stock === 0) {
       toast.error('Sorry, this product is out of stock');
       return;
     }
+
+    if (isInCart) {
+      toast.info('This item is already in your cart. You can update the quantity in the cart.');
+      return;
+    }
+
     try {
       const result = await addToCart(product.id);
       if (result.success) {
         toast.success(result.message || 'Added to cart!');
+        setIsInCart(true);
       } else if (result.requiresAuth) {
         navigate('/login', { state: { from: location.pathname } });
+      } else if (result.error === 'This item is already in your cart') {
+        setIsInCart(true);
+        toast.info('This item is already in your cart. You can update the quantity in the cart.');
       } else {
         toast.error(result.error || 'Failed to add to cart');
       }
@@ -481,28 +502,49 @@ const ProductDetailPage = () => {
             </div>
 
             <div className="space-y-6 mb-8">
-              <div className="flex items-center">
-                <span className={`inline-block w-3 h-3 ${product?.stock === 0 ? 'bg-red-500' : 'bg-green-500'} rounded-full mr-2`}></span>
-                <span className={`${product?.stock === 0 ? 'text-red-600' : 'text-green-600'} font-medium`}>
-                  {product?.stock === 0 ? 'Out of Stock' : 'In Stock'}
-                </span>
-                {product?.stock > 0 && (
-                  <>
-                    <span className="mx-2 text-gray-300">|</span>
-                    <span className="text-gray-600">
-                      {product?.stock} units available
+              {/* Product Status Section */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="flex flex-wrap items-center gap-4">
+                  {/* Stock Status */}
+                  <div className="flex items-center">
+                    <span className={`inline-block w-3 h-3 ${product?.stock === 0 ? 'bg-red-500' : 'bg-green-500'} rounded-full mr-2`}></span>
+                    <span className={`${product?.stock === 0 ? 'text-red-600' : 'text-green-600'} font-medium`}>
+                      {product?.stock === 0 ? 'Out of Stock' : 'In Stock'}
                     </span>
-                  </>
-                )}
+                  </div>
+
+                  {/* Separator */}
+                  <span className="text-gray-300">|</span>
+
+                  {/* Available Units */}
+                  <span className="text-gray-600 font-medium">
+                    {product?.stock} units available
+                  </span>
+
+                  {/* Cart Status */}
+                  {isInCart && (
+                    <>
+                      <span className="text-gray-300">|</span>
+                      <div className="flex items-center">
+                        <span className="inline-block w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                        <span className="text-blue-600 font-medium">In Your Cart</span>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
-
-
+              {/* Action Buttons */}
               <div className="flex gap-4">
                 <button
                   onClick={handleAddToCart}
-                  disabled={product?.stock === 0}
-                  className={`flex-1 py-3 px-6 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 flex items-center justify-center ${product?.stock === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                  disabled={product?.stock === 0 || isInCart}
+                  className={`flex-1 py-3 px-6 font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center
+                    ${product?.stock === 0 
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
+                      : isInCart
+                        ? 'bg-blue-50 text-blue-600 border border-blue-200 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 hover:shadow-md'}`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -518,7 +560,7 @@ const ProductDetailPage = () => {
                       d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
-                  Add to Cart
+                  {product?.stock === 0 ? 'Out of Stock' : isInCart ? 'In Your Cart' : 'Add to Cart'}
                 </button>
 
                 <button
