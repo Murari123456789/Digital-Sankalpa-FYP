@@ -1,27 +1,36 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
-import { toast } from 'react-toastify';
+import { useToast } from '../../contexts/ToastContext';
+import { addToWishlist, removeFromWishlist, checkWishlistStatus } from '../../api/wishlist';
 
 const ProductCard = ({ product }) => {
   const { addToCart, isAuthenticated, isProductInCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+  const { showToast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && product) {
       setIsInCart(isProductInCart(product.id));
+      // Check wishlist status when component mounts
+      checkWishlistStatus(product.id)
+        .then(response => setIsInWishlist(response.is_in_wishlist))
+        .catch(() => setIsInWishlist(false));
     } else {
       setIsInCart(false);
+      setIsInWishlist(false);
     }
   }, [isAuthenticated, product, isProductInCart]);
   
   const handleAddToCart = async (e) => {
     // Check if product is out of stock
     if (product.stock === 0) {
-      toast.error('Sorry, this product is out of stock');
+      showToast('Sorry, this product is out of stock', 'error');
       return;
     }
 
@@ -40,13 +49,17 @@ const ProductCard = ({ product }) => {
       
       if (result.success) {
         // Show success message
-        toast?.success(result.message || 'Item added to cart');
+        showToast(`${product.name} has been added to your cart!`);
+        setIsInCart(true);
+      } else if (result.error === 'This item is already in your cart') {
+        showToast('This item is already in your cart. You can update the quantity in the cart.', 'info');
+        setIsInCart(true);
       } else {
         // Show error message
-        toast?.error(result.error || 'Failed to add item to cart');
+        showToast(result.error || 'Failed to add item to cart', 'error');
       }
     } catch (error) {
-      toast?.error('An error occurred while adding to cart');
+      showToast('An error occurred while adding to cart', 'error');
     } finally {
       setIsAdding(false);
     }
@@ -114,6 +127,48 @@ const ProductCard = ({ product }) => {
                 In Stock
               </span>
             )}
+            <button
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!isAuthenticated) {
+                  navigate('/login', { 
+                    state: { from: location.pathname } 
+                  });
+                  return;
+                }
+                
+                setIsWishlistLoading(true);
+                try {
+                  if (isInWishlist) {
+                    await removeFromWishlist(product.id);
+                    setIsInWishlist(false);
+                    showToast(`${product.name} removed from wishlist`, 'info');
+                  } else {
+                    await addToWishlist(product.id);
+                    setIsInWishlist(true);
+                    showToast(`${product.name} added to wishlist`, 'success');
+                  }
+                } catch (error) {
+                  showToast('Failed to update wishlist', 'error');
+                } finally {
+                  setIsWishlistLoading(false);
+                }
+              }}
+              disabled={isWishlistLoading}
+              className={`rounded-full w-8 h-8 flex items-center justify-center ${isInWishlist ? 'bg-red-500' : 'bg-gray-300'} hover:${isInWishlist ? 'bg-red-600' : 'bg-gray-400'} text-white transition-colors duration-200`}
+              title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              {isWishlistLoading ? (
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill={isInWishlist ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              )}
+            </button>
           </div>
           
           <button 

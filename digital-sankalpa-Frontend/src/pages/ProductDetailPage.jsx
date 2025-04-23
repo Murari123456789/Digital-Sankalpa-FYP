@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { addToWishlist, removeFromWishlist } from '../api/wishlist';
 import { createReview, deleteReview } from '../api/reviews';
 import { FaHeart, FaShoppingCart, FaStar } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import { useToast } from '../contexts/ToastContext';
 import api from '../api/api';
 import ProductReview from '../components/products/ProductReview';
 import Loading from '../components/common/Loading';
@@ -32,6 +32,7 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const { addToCart, isProductInCart } = useCart();
   const { user } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const [copied, setCopied] = useState(false);
@@ -119,31 +120,31 @@ const ProductDetailPage = () => {
     }
 
     if (product.stock === 0) {
-      toast.error('Sorry, this product is out of stock');
+      showToast('Sorry, this product is out of stock', 'error');
       return;
     }
 
     if (isInCart) {
-      toast.info('This item is already in your cart. You can update the quantity in the cart.');
+      showToast('This item is already in your cart. You can update the quantity in the cart.', 'info');
       return;
     }
 
     try {
       const result = await addToCart(product.id);
       if (result.success) {
-        toast.success(result.message || 'Added to cart!');
+        showToast(`${product.name} has been added to your cart!`);
         setIsInCart(true);
       } else if (result.requiresAuth) {
         navigate('/login', { state: { from: location.pathname } });
       } else if (result.error === 'This item is already in your cart') {
         setIsInCart(true);
-        toast.info('This item is already in your cart. You can update the quantity in the cart.');
+        showToast('This item is already in your cart. You can update the quantity in the cart.', 'info');
       } else {
-        toast.error(result.error || 'Failed to add to cart');
+        showToast(result.error || 'Failed to add to cart', 'error');
       }
     } catch (err) {
       console.error('Error adding to cart:', err);
-      toast.error('Failed to add to cart');
+      showToast('Failed to add to cart', 'error');
     }
   };
 

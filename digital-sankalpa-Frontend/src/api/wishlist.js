@@ -24,6 +24,8 @@ export const checkWishlistStatus = async (productId) => {
 export const addToWishlist = async (productId) => {
   try {
     const response = await api.post(`/api/products/wishlist/${productId}/`);
+    // Dispatch wishlistUpdated event after successful addition
+    window.dispatchEvent(new Event('wishlistUpdated'));
     return response.data;
   } catch (error) {
     throw error;
@@ -34,6 +36,8 @@ export const addToWishlist = async (productId) => {
 export const removeFromWishlist = async (productId) => {
   try {
     const response = await api.delete(`/api/products/wishlist/${productId}/`);
+    // Dispatch wishlistUpdated event after successful removal
+    window.dispatchEvent(new Event('wishlistUpdated'));
     return response.data;
   } catch (error) {
     throw error;

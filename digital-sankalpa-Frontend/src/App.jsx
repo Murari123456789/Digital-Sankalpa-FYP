@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth.jsx';
 import { CartProvider } from './contexts/CartContext';
+import { PopupProvider } from './contexts/PopupContext';
+import { ToastProvider } from './contexts/ToastContext';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -27,7 +29,9 @@ function AppContent() {
 
   return (
     <CartProvider>
-      <div className="flex flex-col min-h-screen">
+      <ToastProvider>
+        <PopupProvider>
+        <div className="flex flex-col min-h-screen">
         {!hideHeaderFooter && <Header />}
         <main className={`flex-grow container mx-auto ${hideHeaderFooter ? 'p-0' : 'px-4 py-6'}`}>
           <Routes>
@@ -49,7 +53,9 @@ function AppContent() {
           </Routes>
         </main>
         {!hideHeaderFooter && <Footer />}
-      </div>
+        </div>
+        </PopupProvider>
+      </ToastProvider>
     </CartProvider>
   );
 }

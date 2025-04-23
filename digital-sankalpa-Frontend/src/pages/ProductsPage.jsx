@@ -5,6 +5,7 @@ import ProductList from '../components/products/ProductList';
 import ProductFilter from '../components/products/ProductFilter.jsx';
 import Pagination from '../components/common/Pagination';
 import Loading from '../components/common/Loading';
+import { usePopup } from '../contexts/PopupContext';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -13,6 +14,7 @@ const ProductsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('query') || '');
+  const { showPopup } = usePopup();
   
   // Get all filter parameters from URL
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -49,8 +51,6 @@ const ProductsPage = () => {
       } catch (err) {
         setError('Failed to fetch products. Please try again later.');
         console.error('Error fetching products:', err);
-        setProducts([]);
-        setTotalPages(0);
       } finally {
         setLoading(false);
       }

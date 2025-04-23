@@ -2,9 +2,24 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import CartItem from '../components/cart/CartItem';
 import Loading from '../components/common/Loading';
+import { usePopup } from '../contexts/PopupContext';
+import { useToast } from '../contexts/ToastContext';
 
 const CartPage = () => {
   const { cartItems, loading, error, removeFromCart, updateCartItem } = useCart();
+  const { showPopup } = usePopup();
+  const { showToast } = useToast();
+
+  const handleRemoveItem = (item) => {
+    showPopup({
+      title: 'Remove Item',
+      message: `Are you sure you want to remove ${item.product_name} from your cart?`,
+      onConfirm: () => {
+        removeFromCart(item.id);
+        showToast(`${item.product_name} has been removed from your cart`);
+      }
+    });
+  };
   
   if (loading) {
     return <Loading />;
@@ -81,7 +96,7 @@ const CartPage = () => {
                     key={item.id} 
                     item={item} 
                     onUpdateQuantity={(quantity) => updateCartItem(item.id, quantity)}
-                    onRemove={() => removeFromCart(item.id)}
+                    onRemove={() => handleRemoveItem(item)}
                   />
               ))}
             </div>

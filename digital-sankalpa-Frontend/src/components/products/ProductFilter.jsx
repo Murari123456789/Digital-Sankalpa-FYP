@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { usePopup } from '../../contexts/PopupContext';
+import { useToast } from '../../contexts/ToastContext';
 
 const CATEGORIES = [
   { id: 'printer', label: 'Printers' },
@@ -9,6 +11,8 @@ const CATEGORIES = [
 
 const ProductFilter = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { showPopup } = usePopup();
+  const { showToast } = useToast();
   const [priceRange, setPriceRange] = useState({
     min: searchParams.get('min_price') || '',
     max: searchParams.get('max_price') || '',
@@ -30,11 +34,35 @@ const ProductFilter = () => {
 
   // Apply filters
   const applyFilters = () => {
+    showPopup({
+      title: 'Apply Filters',
+      message: 'Are you sure you want to apply these filters?',
+      onConfirm: () => {
+        applyFiltersToURL();
+      }
+    });
+  };
+
+  // Apply filters to URL
+  const applyFiltersToURL = () => {
     const newParams = new URLSearchParams(searchParams);
     
     // Validate price range
     const min = parseFloat(priceRange.min);
     const max = parseFloat(priceRange.max);
+    
+    // Create filter summary for toast message
+    let filterSummary = [];
+    if (selectedCategories.length > 0) {
+      const categoryLabels = selectedCategories.map(id => 
+        CATEGORIES.find(cat => cat.id === id)?.label
+      ).filter(Boolean);
+      filterSummary.push(`Categories: ${categoryLabels.join(', ')}`);
+    }
+    if (min) filterSummary.push(`Min Price: Rs.${min}`);
+    if (max) filterSummary.push(`Max Price: Rs.${max}`);
+    if (sortBy) filterSummary.push(`Sort: ${sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}`);
+
     
     if (!isNaN(min) && min >= 0) {
       newParams.set('min_price', min.toString());
@@ -55,7 +83,7 @@ const ProductFilter = () => {
     }
     
     // Add sort option
-    if (sortBy && sortBy !== 'newest') {
+    if (sortBy) {
       newParams.set('sort', sortBy);
     } else {
       newParams.delete('sort');
@@ -78,6 +106,12 @@ const ProductFilter = () => {
     newParams.set('page', '1');
     
     setSearchParams(newParams);
+
+    // Show success toast with filter summary
+    const message = filterSummary.length > 0 
+      ? `Filters applied: ${filterSummary.join(' | ')}` 
+      : 'All filters have been cleared';
+    showToast(message);
   };
   
   // Reset all filters
@@ -92,8 +126,8 @@ const ProductFilter = () => {
       newParams.set('query', query);
     }
     newParams.set('page', '1');
-    
     setSearchParams(newParams);
+    showToast('All filters have been cleared');
   };
   
   // Handle price range input change
