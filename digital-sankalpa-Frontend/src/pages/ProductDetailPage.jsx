@@ -132,7 +132,7 @@ const ProductDetailPage = () => {
     try {
       const result = await addToCart(product.id);
       if (result.success) {
-        showToast(`${product.name} has been added to your cart!`);
+        showToast(`${product.name} has been added to your cart!`, 'success');
         setIsInCart(true);
       } else if (result.requiresAuth) {
         navigate('/login', { state: { from: location.pathname } });
@@ -159,10 +159,10 @@ const ProductDetailPage = () => {
       if (data.user_review) {
         setUserReview(data.user_review);
       }
-      toast.success('Review deleted successfully!');
+      showToast('Review deleted successfully!', 'success');
     } catch (error) {
       console.error('Error deleting review:', error);
-      toast.error('Failed to delete review');
+      showToast('Failed to delete review', 'error');
     }
   };
 
@@ -177,17 +177,17 @@ const ProductDetailPage = () => {
       if (isInWishlist) {
         await removeFromWishlist(product.id);
         setIsInWishlist(false);
-        toast.success('Removed from wishlist');
+        showToast('Removed from wishlist', 'success');
       } else {
         await addToWishlist(product.id);
         setIsInWishlist(true);
-        toast.success('Added to wishlist');
+        showToast('Added to wishlist', 'success');
       }
       // Dispatch custom event to notify wishlist changes
       window.dispatchEvent(new CustomEvent('wishlistUpdated'));
     } catch (err) {
       console.error('Error toggling wishlist:', err);
-      toast.error('Failed to update wishlist');
+      showToast('Failed to update wishlist', 'error');
     } finally {
       setWishlistLoading(false);
     }
@@ -201,12 +201,12 @@ const ProductDetailPage = () => {
     }
 
     if (rating < 1 || rating > 5) {
-      toast.error('Rating must be between 1 and 5');
+      showToast('Rating must be between 1 and 5', 'error');
       return;
     }
 
     if (!comment.trim()) {
-      toast.error('Please enter a review comment');
+      showToast('Please enter a review comment', 'error');
       return;
     }
 
@@ -226,16 +226,16 @@ const ProductDetailPage = () => {
       }
       setRating(5);
       setComment('');
-      toast.success('Review submitted successfully!');
+      showToast('Review submitted successfully!', 'success');
     } catch (error) {
       console.error('Error submitting review:', error);
       if (error.response?.status === 400) {
-        toast.error(error.response.data.error || 'Failed to submit review');
+        showToast(error.response.data.error || 'Failed to submit review', 'error');
       } else if (error.response?.status === 401) {
-        toast.error('Please log in to submit a review');
+        showToast('Please log in to submit a review', 'error');
         navigate('/login');
       } else {
-        toast.error('An error occurred while submitting your review');
+        showToast('An error occurred while submitting your review', 'error');
       }
     } finally {
       setSubmittingReview(false);
@@ -491,7 +491,7 @@ const ProductDetailPage = () => {
                         window.open('https://www.instagram.com', '_blank');
                       }
                       
-                      toast.success('Content copied! Opening Instagram...');
+                      showToast('Content copied! Opening Instagram...', 'success');
                     });
                   }}
                   className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 hover:opacity-80 transition-opacity"

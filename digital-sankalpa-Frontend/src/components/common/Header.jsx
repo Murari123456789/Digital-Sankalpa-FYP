@@ -215,7 +215,7 @@ const Header = () => {
                   className={`block py-2 ${isActivePath('/contact') ? 'text-blue-600 font-medium' : 'text-gray-700'} hover:text-blue-500 transition-colors duration-200`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Contact
+                  Contact Us
                 </Link>
               </li>
               {isAdmin && (

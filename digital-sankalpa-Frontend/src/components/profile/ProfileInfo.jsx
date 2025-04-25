@@ -16,12 +16,6 @@ const ProfileInfo = ({ user }) => {
     email: Yup.string()
       .email('Invalid email address')
       .required('Email is required'),
-    firstName: Yup.string()
-      .required('First name is required'),
-    lastName: Yup.string()
-      .required('Last name is required'),
-    phone: Yup.string()
-      .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
   });
   
   // Handle form with Formik
@@ -29,12 +23,6 @@ const ProfileInfo = ({ user }) => {
     initialValues: {
       username: user.username || '',
       email: user.email || '',
-      firstName: user.first_name || '',
-      lastName: user.last_name || '',
-      phone: user.phone || '',
-      address: user.address || '',
-      city: user.city || '',
-      postalCode: user.postal_code || '',
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -109,87 +97,6 @@ const ProfileInfo = ({ user }) => {
             {formik.touched.email && formik.errors.email && (
               <div className="text-red-500 text-sm mt-1">{formik.errors.email}</div>
             )}
-          </div>
-          
-          <div>
-            <label htmlFor="firstName" className="form-label">First Name</label>
-            <input
-              id="firstName"
-              type="text"
-              className={`input-field ${
-                formik.touched.firstName && formik.errors.firstName
-                  ? 'border-red-500 focus:ring-red-500'
-                  : ''
-              }`}
-              {...formik.getFieldProps('firstName')}
-            />
-            {formik.touched.firstName && formik.errors.firstName && (
-              <div className="text-red-500 text-sm mt-1">{formik.errors.firstName}</div>
-            )}
-          </div>
-          
-          <div>
-            <label htmlFor="lastName" className="form-label">Last Name</label>
-            <input
-              id="lastName"
-              type="text"
-              className={`input-field ${
-                formik.touched.lastName && formik.errors.lastName
-                  ? 'border-red-500 focus:ring-red-500'
-                  : ''
-              }`}
-              {...formik.getFieldProps('lastName')}
-            />
-            {formik.touched.lastName && formik.errors.lastName && (
-              <div className="text-red-500 text-sm mt-1">{formik.errors.lastName}</div>
-            )}
-          </div>
-          
-          <div>
-            <label htmlFor="phone" className="form-label">Phone</label>
-            <input
-              id="phone"
-              type="tel"
-              className={`input-field ${
-                formik.touched.phone && formik.errors.phone
-                  ? 'border-red-500 focus:ring-red-500'
-                  : ''
-              }`}
-              {...formik.getFieldProps('phone')}
-            />
-            {formik.touched.phone && formik.errors.phone && (
-              <div className="text-red-500 text-sm mt-1">{formik.errors.phone}</div>
-            )}
-          </div>
-          
-          <div className="md:col-span-2">
-            <label htmlFor="address" className="form-label">Address</label>
-            <input
-              id="address"
-              type="text"
-              className="input-field"
-              {...formik.getFieldProps('address')}
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="city" className="form-label">City</label>
-            <input
-              id="city"
-              type="text"
-              className="input-field"
-              {...formik.getFieldProps('city')}
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="postalCode" className="form-label">Postal Code</label>
-            <input
-              id="postalCode"
-              type="text"
-              className="input-field"
-              {...formik.getFieldProps('postalCode')}
-            />
           </div>
         </div>
         
