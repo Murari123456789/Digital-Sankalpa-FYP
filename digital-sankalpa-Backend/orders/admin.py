@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db.models import F
-from .models import Order, CartItem
+from .models import Order
 from products.models import Product
 
 class OrderAdmin(admin.ModelAdmin):
@@ -64,4 +64,3 @@ class OrderAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 admin.site.register(Order, OrderAdmin)
-admin.site.register(CartItem)

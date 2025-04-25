@@ -10,15 +10,13 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'password', 'password_confirm', 'login_streak', 'ink_bottle_returns', 'points', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'password', 'password_confirm', 'login_streak', 'ink_bottle_returns', 'points']
         extra_kwargs = {
             'password': {'write_only': True},
             'password_confirm': {'write_only': True},
             'login_streak': {'read_only': True},
             'ink_bottle_returns': {'read_only': True},
             'points': {'read_only': True},
-            'first_name': {'required': False},
-            'last_name': {'required': False},
         }
 
     def validate_username(self, value):

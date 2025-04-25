@@ -97,7 +97,7 @@ const Header = () => {
                   to="/contact" 
                   className={`relative px-2 py-3 ${isActivePath('/contact') ? 'text-blue-600 after:absolute after:w-full after:h-0.5 after:bg-blue-600 after:bottom-0 after:left-0' : 'text-gray-700'} hover:text-blue-500 transition-colors duration-200`}
                 >
-                  Contact
+                  Contact Us
                 </Link>
               </li>
               {isAdmin && (

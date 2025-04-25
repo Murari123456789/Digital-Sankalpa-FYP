@@ -57,6 +57,7 @@ ALLOWED_HOSTS = ['django-tutorial.alwaysdata.net','*']
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'adminlte4',
     'adminlte4_theme',
@@ -249,3 +250,23 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'digitalsankalpa4@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD').replace(' ', '')  # Remove spaces from password
 DEFAULT_FROM_EMAIL = 'digitalsankalpa4@gmail.com'
+
+# Jazzmin basic customization
+JAZZMIN_SETTINGS = {
+    "site_title": "Digital Sankalpa Admin",
+    "site_header": "Digital Sankalpa Administration",
+    "site_brand": "Digital Sankalpa",
+    "welcome_sign": "Welcome to Digital Sankalpa Admin",
+    "copyright": "Digital Sankalpa 2024",
+    "search_model": ["auth.User", "accounts.CustomUser", "products.Product"],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": ["auth.group", "reviews.review", "contacts.contact"],
+    "order_with_respect_to": ["accounts", "products", "orders", "discounts", "reviews", "contacts"],
+    "custom_css": None,
+    "custom_js": None,
+    "icons": {
+        "contacts.Contact": "fas fa-address-book",
+    },
+}

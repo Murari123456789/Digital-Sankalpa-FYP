@@ -323,3 +323,99 @@ input[type=checkbox], input[type=radio] {
     padding-right: 35px !important;
     background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666'%3E%3Cpath d='M14 2h-1V0h-2v2H5V0H3v2H2C.9 2 0 2.9 0 4v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H2V7h12v7z'/%3E%3C/svg%3E") no-repeat right 10px center/16px;
 }
+
+/* --- Make the Django admin sidebar fixed --- */
+#nav-sidebar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  min-height: 100vh;
+  z-index: 1001;
+  overflow-y: auto;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.07);
+}
+#container {
+  margin-left: 260px !important; /* Adjust if your sidebar is wider/narrower */
+}
+@media (max-width: 900px) {
+  #nav-sidebar {
+    position: static !important;
+    height: auto;
+    min-height: 0;
+    box-shadow: none;
+  }
+  #container {
+    margin-left: 0 !important;
+  }
+}
+/* --- End fixed sidebar --- */
+
+/* --- Sidebar icons for Django admin --- */
+#nav-sidebar li > a:before {
+    display: none !important;
+}
+#nav-sidebar li {
+    list-style: none !important;
+}
+
+/* Hide the default dot icon for all sidebar items */
+#nav-sidebar .nav-icon.fas.fa-circle {
+    display: none !important;
+}
+
+/* Users */
+#nav-sidebar a[href$="/admin/accounts/customuser/"]::before {
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml;utf8,<svg fill="gray" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/></svg>') no-repeat center/contain;
+}
+
+/* Products */
+#nav-sidebar a[href$="/admin/products/product/"]::before {
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml;utf8,<svg fill="gray" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><rect x="7" y="10" width="10" height="2" rx="1"/></svg>') no-repeat center/contain;
+}
+
+/* Orders */
+#nav-sidebar a[href$="/admin/orders/order/"]::before {
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml;utf8,<svg fill="gray" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 6h18v2H3z"/><rect x="7" y="10" width="10" height="2" rx="1"/><rect x="7" y="14" width="7" height="2" rx="1"/></svg>') no-repeat center/contain;
+}
+
+/* Discounts */
+#nav-sidebar a[href$="/admin/discounts/discount/"]::before {
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml;utf8,<svg fill="gray" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="10" rx="2"/><circle cx="8" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/></svg>') no-repeat center/contain;
+}
+
+/* Promo Codes */
+#nav-sidebar a[href$="/admin/discounts/promocode/"]::before {
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml;utf8,<svg fill="gray" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="10" rx="2"/><rect x="7" y="10" width="10" height="2" rx="1"/><rect x="7" y="14" width="7" height="2" rx="1"/><circle cx="12" cy="12" r="3"/></svg>') no-repeat center/contain;
+}
+/* --- End sidebar icons --- */
