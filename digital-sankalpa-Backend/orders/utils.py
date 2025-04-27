@@ -3,6 +3,9 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from decimal import Decimal
+import logging
+
+logger = logging.getLogger(__name__)
 
 def send_order_receipt(order):
     """
@@ -13,6 +16,9 @@ def send_order_receipt(order):
     """
     # Get user email
     user_email = order.user.email
+    
+    # Debug info
+    logger.info(f"Preparing to send email to {user_email} for order #{order.uuid}")
     
     # Calculate discount amounts
     user_discount_amount = Decimal('0.00')
@@ -48,13 +54,24 @@ def send_order_receipt(order):
     plain_message = strip_tags(html_message)
     
     # Send email
-    send_mail(
-        subject=f'Your Digital Sankalpa Order #{order.uuid} Receipt',
-        message=plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user_email],
-        html_message=html_message,
-        fail_silently=False,
-    )
+    logger.info(f"Sending email to {user_email} with subject: Your Digital Sankalpa Order #{order.uuid} Receipt")
     
-    return True
+    # For testing, also send to a backup email to ensure delivery
+    recipient_list = [user_email]
+    if user_email != 'murari.pathak@gmail.com':
+        recipient_list.append('murari.pathak@gmail.com')  # Add your email as BCC for testing
+    
+    try:
+        send_mail(
+            subject=f'Your Digital Sankalpa Order #{order.uuid} Receipt',
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipient_list,
+            html_message=html_message,
+            fail_silently=False,
+        )
+        logger.info(f"Email sent successfully to {user_email} for order #{order.uuid}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email to {user_email}: {str(e)}")
+        raise
