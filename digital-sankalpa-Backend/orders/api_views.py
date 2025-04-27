@@ -43,8 +43,8 @@ def view_orders(request):
     return paginator.get_paginated_response(paginated_orders)
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from orders.models import CartItem
-from .serializers import CartItemSerializer
+from orders.models import CartItem, ShippingAddress
+from .serializers import CartItemSerializer, ShippingAddressSerializer
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -166,6 +166,21 @@ def checkout(request):
     # Create a unique order ID using uuid
     uid = uuid.uuid4().hex[:8]
     
+    # Get shipping information from request
+    shipping_info = request.data.get('shipping_info', {})
+    payment_method = request.data.get('payment_method', 'esewa')
+    
+    # Create shipping address
+    shipping_address = None
+    if shipping_info:
+        shipping_address = ShippingAddress.objects.create(
+            name=shipping_info.get('name', ''),
+            street=shipping_info.get('street', ''),
+            city=shipping_info.get('city', ''),
+            postal_code=shipping_info.get('postal_code', ''),
+            phone=shipping_info.get('phone', '')
+        )
+    
     # Create the order object
     order = Order.objects.create(
         user=request.user,
@@ -176,6 +191,8 @@ def checkout(request):
         point_discount=point_discount,
         final_price=final_price,
         payment_status="pending",
+        payment_method=payment_method,
+        shipping_address=shipping_address,
         used_discount=discount
     )
     
@@ -256,3 +273,14 @@ def checkout_failure(request, order_id):
     if order:
         order.delete()  # Delete the order on payment failure
     return Response({'error': 'Payment failed! Your order was cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_order_by_id(request, order_id):
+    try:
+        # Get the order by ID, ensuring it belongs to the authenticated user
+        order = Order.objects.get(id=order_id, user=request.user)
+        serializer = OrderSerializer(order, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Order.DoesNotExist:
+        return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)

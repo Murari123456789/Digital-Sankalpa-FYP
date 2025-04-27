@@ -166,7 +166,8 @@ export const CartProvider = ({ children }) => {
         getCartTotals,
         checkout,
         isProductInCart,
-        isAuthenticated: !!user
+        isAuthenticated: !!user,
+        fetchCart
       }}
     >
       {children}

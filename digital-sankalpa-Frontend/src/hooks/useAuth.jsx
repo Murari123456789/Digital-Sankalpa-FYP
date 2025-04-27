@@ -174,19 +174,5 @@ export const useAuth = () => {
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  const navigate = useNavigate();
-
-  const refreshUser = async () => {
-    try {
-      const response = await api.get('/api/accounts/profile/');
-      context.setUser(response.data);
-    } catch (error) {
-      console.error('Failed to refresh user data:', error);
-    }
-  };
-
-  return {
-    ...context,
-    refreshUser,
-  };
+  return context;
 };

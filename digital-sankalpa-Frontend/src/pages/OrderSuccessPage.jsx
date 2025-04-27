@@ -27,7 +27,14 @@ const OrderSuccessPage = () => {
         setPointsEarned(points);
         
         // Refresh cart and user data after successful order
-        await Promise.all([fetchCart(), refreshUser()]);
+        if (orderData) {
+          // Only refresh cart and user data once when order is loaded
+          try {
+            await Promise.all([fetchCart(), refreshUser()]);
+          } catch (refreshErr) {
+            console.error('Error refreshing data:', refreshErr);
+          }
+        }
       } catch (err) {
         setError('Failed to load order details. Please check your email for confirmation.');
         console.error(err);
@@ -37,9 +44,10 @@ const OrderSuccessPage = () => {
     };
     
     fetchOrder();
-  }, [orderId, fetchCart, refreshUser]);
+    // Only re-run when orderId changes
+  }, [orderId]);
   
-  if (loading) {
+  if (loading || !order) {
     return <Loading />;
   }
   
@@ -113,23 +121,23 @@ const OrderSuccessPage = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                       <span className="text-gray-600">Order Number:</span>
-                      <span className="font-medium">{order.uuid}</span>
+                      <span className="font-medium">{order.uuid || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                       <span className="text-gray-600">Date:</span>
-                      <span className="font-medium">{formatDate(order.created_at)}</span>
+                      <span className="font-medium">{order.created_at ? formatDate(order.created_at) : 'N/A'}</span>
                     </div>
                     <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                       <span className="text-gray-600">Payment Status:</span>
                       <span className="capitalize font-medium">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {order.payment_status}
+                          {order.payment_status || 'Pending'}
                         </span>
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Total:</span>
-                      <span className="font-bold text-lg">Rs. {order.final_price}</span>
+                      <span className="font-bold text-lg">Rs. {order.final_price || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -141,12 +149,16 @@ const OrderSuccessPage = () => {
                       <Truck className="mr-2" size={18} />
                       Shipping Address
                     </h2>
-                    <address className="text-gray-600 not-italic leading-relaxed">
-                      {order.shipping_address.name}<br />
-                      {order.shipping_address.street}<br />
-                      {order.shipping_address.city}, {order.shipping_address.postal_code}<br />
-                      {order.shipping_address.phone}
-                    </address>
+                    {order.shipping_address ? (
+                      <address className="text-gray-600 not-italic leading-relaxed">
+                        {order.shipping_address.name}<br />
+                        {order.shipping_address.street}<br />
+                        {order.shipping_address.city}, {order.shipping_address.postal_code}<br />
+                        {order.shipping_address.phone}
+                      </address>
+                    ) : (
+                      <p className="text-gray-600">Shipping information not available</p>
+                    )}
                   </div>
                   
                   <div className="bg-gray-50 p-6 rounded-lg">
@@ -155,7 +167,7 @@ const OrderSuccessPage = () => {
                       Payment Method
                     </h2>
                     <p className="text-gray-600 capitalize">
-                      {order.payment_method}
+                      {order.payment_method || 'Not specified'}
                     </p>
                   </div>
                 </div>
@@ -180,68 +192,76 @@ const OrderSuccessPage = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {order.items.map((item) => (
+                      {order.cart_items && order.cart_items.length > 0 ? order.cart_items.map((item) => (
                         <tr key={item.id}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-12 w-12 bg-gray-100 rounded overflow-hidden">
-                                {item.product.image && (
+                                {item.image && (
                                   <img
-                                    src={item.product.image}
-                                    alt={item.product.name}
+                                    src={item.image}
+                                    alt={item.product_name || 'Product'}
                                     className="h-12 w-12 object-cover"
                                   />
                                 )}
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">
-                                  {item.product.name}
+                                  {item.product_name || 'Product'}
                                 </div>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             {item.quantity}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             Rs. {item.price}
                           </td>
                         </tr>
-                      ))}
+                      )) : (
+                        <tr>
+                          <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                            No items in this order
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                     <tfoot className="bg-gray-50">
                       <tr>
-                        <td colSpan="2" className="px-6 py-4 text-right text-sm font-medium text-gray-500">
-                          Subtotal:
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          Subtotal
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          Rs. {order.total_price}
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          Rs. {order.total_price || 0}
                         </td>
                       </tr>
                       {order.discount > 0 && (
                         <tr>
-                          <td colSpan="2" className="px-6 py-4 text-right text-sm font-medium text-gray-500">
-                            Discount:
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            Discount ({order.discount}%)
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">
-                            -Rs. {order.discount}
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            - Rs. {((order.total_price || 0) * (order.discount || 0) / 100).toFixed(2)}
+                          </td>
+                        </tr>
+                      )}
+                      {order.points_redeemed > 0 && (
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            Points Redeemed ({order.points_redeemed} points)
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            - Rs. {order.point_discount || 0}
                           </td>
                         </tr>
                       )}
                       <tr>
-                        <td colSpan="2" className="px-6 py-4 text-right text-sm font-medium text-gray-500">
-                          Shipping:
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          Total
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          {order.shipping_cost > 0 ? `Rs. ${order.shipping_cost}` : 'Free'}
-                        </td>
-                      </tr>
-                      <tr className="bg-gray-100">
-                        <td colSpan="2" className="px-6 py-4 text-right text-sm font-bold text-gray-900">
-                          Total:
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-base font-bold">
-                          Rs. {order.final_price}
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-gray-900">
+                          Rs. {order.final_price || 0}
                         </td>
                       </tr>
                     </tfoot>

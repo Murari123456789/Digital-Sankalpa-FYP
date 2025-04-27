@@ -10,4 +10,5 @@ urlpatterns = [
     path('checkout/', checkout, name='checkout'),
     path('checkout/success/<int:order_id>', checkout_success, name='success'),
     path('checkout/failure/<int:order_id>', checkout_failure, name='failure'),
+    path('order/<int:order_id>/', get_order_by_id, name='get_order_by_id'),
 ]
