@@ -1,0 +1,89 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+  <style>
+    .dashboard-cards {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+    }
+    .dashboard-card {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 4px 24px rgba(37,99,235,0.08);
+      padding: 2rem 2.5rem 1.5rem 2.5rem;
+      flex: 1 1 20%;
+      max-width: 20%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .dashboard-card:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 8px 32px rgba(37,99,235,0.18);
+    }
+    .dashboard-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.9;
+    }
+    .dashboard-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.5px;
+    }
+    .dashboard-value {
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 0.2rem;
+      letter-spacing: 1px;
+    }
+    @media (max-width: 1200px) {
+      .dashboard-card { font-size: 0.95em; padding: 1.2rem 1rem 1rem 1rem; }
+    }
+    @media (max-width: 900px) {
+      .dashboard-cards { gap: 1rem; }
+      .dashboard-card { font-size: 0.9em; padding: 1rem 0.5rem 0.5rem 0.5rem; }
+    }
+    @media (max-width: 700px) {
+      .dashboard-cards { flex-direction: column; gap: 1rem; }
+      .dashboard-card { max-width: 100%; flex: 1 1 100%; }
+    }
+  </style>
+  <div class="dashboard-cards">
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #6366f1 0%, #2563eb 100%);">
+      <span class="dashboard-icon">👤</span>
+      <span class="dashboard-label">Users</span>
+      <span class="dashboard-value">{{ user_count }}</span>
+    </div>
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #f59e42 0%, #fbbf24 100%);">
+      <span class="dashboard-icon">🛒</span>
+      <span class="dashboard-label">Orders</span>
+      <span class="dashboard-value">{{ order_count }}</span>
+    </div>
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+      <span class="dashboard-icon">📦</span>
+      <span class="dashboard-label">Products</span>
+      <span class="dashboard-value">{{ product_count }}</span>
+    </div>
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);">
+      <span class="dashboard-icon">🏷️</span>
+      <span class="dashboard-label">Discounts</span>
+      <span class="dashboard-value">{{ discount_count }}</span>
+    </div>
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);">
+      <span class="dashboard-icon">🎟️</span>
+      <span class="dashboard-label">Promo Codes</span>
+      <span class="dashboard-value">{{ promocode_count }}</span>
+    </div>
+  </div>
+  {{ block.super }}
+{% endblock %} 
