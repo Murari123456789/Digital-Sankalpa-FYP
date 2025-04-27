@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Receipt - Digital Sankalpa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        .order-info {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f5f7fa;
+            border-radius: 5px;
+        }
+        .order-details {
+            margin-bottom: 20px;
+        }
+        .shipping-info {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background-color: #4a6cf7;
+            color: white;
+            text-align: left;
+            padding: 10px;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .summary {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .total-row {
+            font-weight: bold;
+            font-size: 18px;
+            color: #4a6cf7;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .discount {
+            color: #22c55e;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 20px;
+            margin-right: 5px;
+        }
+        .badge-blue {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .badge-purple {
+            background-color: #f3e8ff;
+            color: #7e22ce;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Order Confirmation</h1>
+            <p>Thank you for your purchase!</p>
+        </div>
+        
+        <div class="order-info">
+            <h2>Order #{{ order.uuid }}</h2>
+            <p>Date: {{ order_date }}</p>
+            <p>Payment Method: {{ payment_method }}</p>
+            <p>Payment Status: {{ order.payment_status|title }}</p>
+        </div>
+        
+        <div class="shipping-info">
+            <h3>Shipping Address</h3>
+            {% if shipping_address %}
+            <p>
+                {{ shipping_address.name }}<br>
+                {{ shipping_address.street }}<br>
+                {{ shipping_address.city }}, {{ shipping_address.postal_code }}<br>
+                Phone: {{ shipping_address.phone }}
+            </p>
+            {% else %}
+            <p>No shipping address provided</p>
+            {% endif %}
+        </div>
+        
+        <div class="order-details">
+            <h3>Order Items</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center;">
+                                {% if item.image %}
+                                <img src="{{ item.image }}" alt="{{ item.product_name }}" class="product-image">
+                                {% endif %}
+                                <div style="margin-left: 10px;">
+                                    <div>{{ item.product_name }}</div>
+                                    <div style="font-size: 12px; color: #777;">ID: {{ item.product_id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.total_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="summary">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>{{ total_price }}</span>
+            </div>
+            
+            {% if order.discount > 0 %}
+            <div class="summary-row">
+                <span>User Discount ({{ order.discount }}%):</span>
+                <span class="discount">- {{ user_discount_amount }}</span>
+            </div>
+            {% endif %}
+            
+            {% if order.used_discount %}
+            <div class="summary-row">
+                <span>
+                    <span class="badge badge-purple">{{ order.used_discount.reason|default:"PROMO" }}</span>
+                    Promo Discount ({{ order.used_discount.discount_percentage }}%):
+                </span>
+                <span class="discount">- {{ promo_discount_amount }}</span>
+            </div>
+            {% endif %}
+            
+            {% if order.points_redeemed > 0 %}
+            <div class="summary-row">
+                <span>
+                    <span class="badge badge-blue">{{ order.points_redeemed }} points</span>
+                    Points Redeemed:
+                </span>
+                <span class="discount">- {{ point_discount }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="summary-row total-row">
+                <span>Total:</span>
+                <span>{{ final_price }}</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Thank you for shopping with Digital Sankalpa!</p>
+            <p>If you have any questions about your order, please contact our customer service at support@digitalsankalpa.com</p>
+            <p>&copy; 2025 Digital Sankalpa. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

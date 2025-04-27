@@ -223,6 +223,10 @@ def checkout(request):
         'payment_form': payment_form,  # You may include the form or payment link as needed
     }, status=status.HTTP_201_CREATED)
 from esewa.signature import verify_signature
+from .utils import send_order_receipt
+import logging
+
+logger = logging.getLogger(__name__)
 
 @api_view(['GET'])
 def checkout_success(request, order_id):
@@ -259,11 +263,22 @@ def checkout_success(request, order_id):
     user = order.user
     user.points += points_to_award
     user.save()
+    order.save()
+    
+    # Send order receipt email
+    try:
+        send_order_receipt(order)
+        email_sent = True
+        logger.info(f"Order receipt email sent successfully for order #{order.uuid}")
+    except Exception as e:
+        email_sent = False
+        logger.error(f"Failed to send order receipt email: {str(e)}")
 
     return Response({
         'message': 'Payment successful! Order processed.',
         'points_earned': points_to_award,
-        'total_points': user.points
+        'total_points': user.points,
+        'email_sent': email_sent
     }, status=status.HTTP_200_OK)
 
 @api_view(['GET'])

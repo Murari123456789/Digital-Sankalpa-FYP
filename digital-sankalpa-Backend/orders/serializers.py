@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from orders.models import CartItem, Order, ShippingAddress
 from products.models import Product
+from discounts.models import Discount
 from django.conf import settings
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -30,18 +31,24 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
         model = ShippingAddress
         fields = ['id', 'name', 'street', 'city', 'postal_code', 'phone']
 
+class DiscountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discount
+        fields = ['id', 'discount_percentage', 'reason', 'valid_until']
+
 class OrderSerializer(serializers.ModelSerializer):
     cart_items = CartItemSerializer(many=True)
     total_price = serializers.SerializerMethodField()
     points_redeemed = serializers.IntegerField()
     point_discount = serializers.DecimalField(max_digits=10, decimal_places=2)
     shipping_address = ShippingAddressSerializer(read_only=True)
+    used_discount = DiscountSerializer(read_only=True)
 
     class Meta:
         model = Order
         fields = ['id', 'uuid', 'total_price', 'discount', 'points_redeemed', 'point_discount', 
                  'final_price', 'payment_status', 'payment_method', 'shipping_address', 
-                 'cart_items', 'created_at']
+                 'cart_items', 'created_at', 'used_discount']
 
     def get_total_price(self, obj):
         return sum(item.product.price * item.quantity for item in obj.cart_items.all())

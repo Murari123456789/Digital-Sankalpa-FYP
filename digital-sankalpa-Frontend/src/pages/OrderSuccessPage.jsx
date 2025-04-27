@@ -20,6 +20,7 @@ const OrderSuccessPage = () => {
       try {
         setLoading(true);
         const orderData = await getOrderById(orderId);
+        console.log('Order data received:', orderData);
         setOrder(orderData);
         
         // Calculate points earned (1 point per Rs. 10 spent)
@@ -175,47 +176,60 @@ const OrderSuccessPage = () => {
               
               {/* Order Items */}
               <div className="mt-8">
-                <h2 className="text-lg font-bold mb-4">Order Items</h2>
-                <div className="overflow-hidden border border-gray-200 rounded-lg shadow-sm">
+                <h2 className="text-lg font-bold mb-4 flex items-center">
+                  <ShoppingBag className="mr-2" size={18} />
+                  Order Items
+                </h2>
+                <div className="overflow-hidden border border-gray-200 rounded-lg shadow-md bg-white">
+                
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white">
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                           Product
                         </th>
-                        <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">
                           Quantity
                         </th>
-                        <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
                           Price
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {order.cart_items && order.cart_items.length > 0 ? order.cart_items.map((item) => (
-                        <tr key={item.id}>
+                    <tbody className="divide-y divide-gray-200">
+                      {order.cart_items && order.cart_items.length > 0 ? order.cart_items.map((item, index) => (
+                        <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50 hover:bg-blue-50 transition-colors duration-150'}>                          
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-12 w-12 bg-gray-100 rounded overflow-hidden">
-                                {item.image && (
+                              <div className="flex-shrink-0 h-16 w-16 rounded-md overflow-hidden border border-gray-200 shadow-sm">
+                                {item.image ? (
                                   <img
                                     src={item.image}
                                     alt={item.product_name || 'Product'}
-                                    className="h-12 w-12 object-cover"
+                                    className="h-16 w-16 object-contain p-1"
                                   />
+                                ) : (
+                                  <div className="h-16 w-16 bg-gray-100 flex items-center justify-center">
+                                    <ShoppingBag size={24} className="text-gray-400" />
+                                  </div>
                                 )}
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">
+                                <div className="text-sm font-semibold text-gray-900">
                                   {item.product_name || 'Product'}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  Item #{item.id}
                                 </div>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            {item.quantity}
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                              {item.quantity}
+                            </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
                             Rs. {item.price}
                           </td>
                         </tr>
@@ -227,40 +241,61 @@ const OrderSuccessPage = () => {
                         </tr>
                       )}
                     </tbody>
-                    <tfoot className="bg-gray-50">
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          Subtotal
+                    <tfoot>
+                      <tr className="border-t-2 border-gray-200 bg-gray-50">
+                        <td colSpan="2" className="px-6 py-3 text-right text-sm font-medium text-gray-700">
+                          Subtotal:
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                        <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
                           Rs. {order.total_price || 0}
                         </td>
                       </tr>
                       {order.discount > 0 && (
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            Discount ({order.discount}%)
+                        <tr className="bg-gray-50">
+                          <td colSpan="2" className="px-6 py-2 text-right text-sm font-medium text-gray-700">
+                            User Discount ({order.discount}%):
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          <td className="px-6 py-2 text-right text-sm font-medium text-green-600">
                             - Rs. {((order.total_price || 0) * (order.discount || 0) / 100).toFixed(2)}
                           </td>
                         </tr>
                       )}
-                      {order.points_redeemed > 0 && (
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            Points Redeemed ({order.points_redeemed} points)
+                      
+                      {order.used_discount && (
+                        <tr className="bg-gray-50">
+                          <td colSpan="2" className="px-6 py-2 text-right text-sm font-medium text-gray-700">
+                            <div className="flex items-center justify-end">
+                              <span className="inline-flex items-center mr-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                {order.used_discount.reason || 'PROMO'}
+                              </span>
+                              <span>Promo Discount ({order.used_discount.discount_percentage}%):</span>
+                            </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          <td className="px-6 py-2 text-right text-sm font-medium text-green-600">
+                            - Rs. {((order.total_price || 0) * (order.used_discount.discount_percentage || 0) / 100).toFixed(2)}
+                          </td>
+                        </tr>
+                      )}
+                      {order.points_redeemed > 0 && (
+                        <tr className="bg-gray-50">
+                          <td colSpan="2" className="px-6 py-2 text-right text-sm font-medium text-gray-700">
+                            <div className="flex items-center justify-end">
+                              <span className="inline-flex items-center mr-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                {order.points_redeemed} points
+                              </span>
+                              <span>Points Redeemed:</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-2 text-right text-sm font-medium text-green-600">
                             - Rs. {order.point_discount || 0}
                           </td>
                         </tr>
                       )}
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          Total
+                      <tr className="bg-gradient-to-r from-indigo-50 to-blue-50 border-t-2 border-indigo-100">
+                        <td colSpan="2" className="px-6 py-4 text-right text-base font-bold text-gray-900">
+                          Total:
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-gray-900">
+                        <td className="px-6 py-4 text-right text-base font-bold text-indigo-700">
                           Rs. {order.final_price || 0}
                         </td>
                       </tr>
@@ -271,11 +306,6 @@ const OrderSuccessPage = () => {
               
               {/* Actions */}
               <div className="mt-10 border-t border-gray-200 pt-8 text-center">
-                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 max-w-lg mx-auto">
-                  <p className="text-blue-700">
-                    A confirmation email has been sent to your email address.
-                  </p>
-                </div>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <Link to="/profile" className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-md">
                     View Your Orders
