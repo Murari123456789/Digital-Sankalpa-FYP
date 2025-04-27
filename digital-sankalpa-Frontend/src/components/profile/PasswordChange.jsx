@@ -43,12 +43,24 @@ const PasswordChange = () => {
         });
         
         if (result.success) {
-          setSuccess('Password changed successfully!');
+          setSuccess(result.message || 'Password changed successfully!');
           formik.resetForm();
+          // Scroll to top to show success message
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-          setError(result.error);
+          if (typeof result.error === 'object' && result.error.error) {
+            // Handle array of error messages
+            if (Array.isArray(result.error.error)) {
+              setError(result.error.error.join(', '));
+            } else {
+              setError(result.error.error);
+            }
+          } else {
+            setError(result.error);
+          }
         }
       } catch (err) {
+        console.error('Password change error:', err);
         setError('Failed to change password. Please try again.');
       }
     },

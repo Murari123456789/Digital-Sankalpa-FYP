@@ -109,17 +109,36 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateProfile = async (userData) => {
-    const response = await api.put('/api/accounts/my/account/', userData);
-    setUser(response.data);
-    return response.data;
+    try {
+      const response = await api.put('/api/accounts/profile/update/', userData);
+      // Update the user state with the returned user data
+      if (response.data.user) {
+        setUser(response.data.user);
+      }
+      return { success: true, data: response.data, message: response.data.message };
+    } catch (error) {
+      console.error('Profile update error:', error);
+      if (error.response?.data) {
+        return { success: false, error: error.response.data };
+      }
+      return { success: false, error: 'Failed to update profile. Please try again.' };
+    }
   };
 
-  const changePassword = async (oldPassword, newPassword) => {
-    const response = await api.post('/api/accounts/change-password/', {
-      old_password: oldPassword,
-      new_password: newPassword
-    });
-    return response.data;
+  const changePassword = async (passwordData) => {
+    try {
+      const response = await api.post('/api/accounts/profile/change-password/', {
+        old_password: passwordData.old_password,
+        new_password: passwordData.new_password
+      });
+      return { success: true, message: response.data.message };
+    } catch (error) {
+      console.error('Password change error:', error);
+      if (error.response?.data) {
+        return { success: false, error: error.response.data };
+      }
+      return { success: false, error: 'Failed to change password. Please try again.' };
+    }
   };
 
   const refreshUser = async () => {

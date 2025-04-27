@@ -24,6 +24,9 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if not value:
             raise serializers.ValidationError("Username is required.")
+        # For existing user (update), exclude current user from uniqueness check
+        if self.instance and self.instance.username == value:
+            return value
         if CustomUser.objects.filter(username=value).exists():
             raise serializers.ValidationError("This username is already taken.")
         return value
@@ -31,14 +34,30 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_email(self, value):
         if not value:
             raise serializers.ValidationError("Email is required.")
+        # For existing user (update), exclude current user from uniqueness check
+        if self.instance and self.instance.email == value:
+            return value
         if CustomUser.objects.filter(email=value).exists():
             raise serializers.ValidationError("This email is already registered.")
         return value
 
     def validate(self, data):
+        # Skip password validation for profile updates (when we have an instance)
+        if self.instance:
+            # Remove password fields if they're empty (for profile updates)
+            if 'password' in data and not data.get('password'):
+                data.pop('password', None)
+                data.pop('password_confirm', None)
+                data.pop('passwordConfirm', None)
+                return data
+        
         password = data.get('password')
         # Try both snake_case and camelCase for password confirmation
         password_confirm = data.get('password_confirm') or data.get('passwordConfirm')
+
+        # Only validate password fields if they're provided (for profile updates)
+        if self.instance and not password:
+            return data
 
         if not password:
             raise serializers.ValidationError({"password": "Password is required."})
