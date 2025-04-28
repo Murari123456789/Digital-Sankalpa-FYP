@@ -15,6 +15,7 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
     list_display = ('username', 'email', 'is_active', 'date_joined', 'login_streak', 'points')
+    list_filter = ()  # Remove all filters from the user list page
     exclude = ('last_login', 'is_superuser', 'groups', 'user_permissions', 'ink_bottle_returns', 'is_staff', 'password')
 
 admin.site.unregister(CustomUser) if admin.site.is_registered(CustomUser) else None
