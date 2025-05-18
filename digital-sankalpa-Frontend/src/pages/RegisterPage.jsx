@@ -97,6 +97,7 @@ const RegisterPage = () => {
             type: 'error',
             title: 'Registration Failed',
             message: errorMessage,
+            onConfirm: () => {},
             duration: 5000
           });
           
@@ -109,6 +110,7 @@ const RegisterPage = () => {
           type: 'error',
           title: 'Registration Error',
           message: 'An unexpected error occurred. Please try again later.',
+          onConfirm: () => {},
           duration: 5000
         });
         
