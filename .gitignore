@@ -104,3 +104,8 @@ htmlcov/
 
 # Local development settings
 .envrc
+
+__pycache__/
+*.pyc
+.DS_Store
+
