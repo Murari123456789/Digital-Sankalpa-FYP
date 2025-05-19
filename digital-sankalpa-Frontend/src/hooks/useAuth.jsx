@@ -54,10 +54,14 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error during logout:', error);
+      // Even if the logout request fails, we should still clear local storage and user state
     } finally {
+      // Always clear local storage and user state
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       setUser(null);
+      // Redirect to login page
+      window.location.href = '/login';
     }
   };
 
