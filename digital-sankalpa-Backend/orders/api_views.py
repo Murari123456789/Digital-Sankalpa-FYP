@@ -24,23 +24,16 @@ class OrderPagination(PageNumberPagination):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_orders(request):
-    # Try to get from cache first
-    cache_key = f'user_orders_{request.user.id}'
-    cached_orders = cache.get(cache_key)
-
-    if cached_orders is None:
-        # If not in cache, get from database
-        orders = Order.objects.filter(user=request.user).order_by('-created_at')
-        serializer = OrderSerializer(orders, many=True)
-        cached_orders = serializer.data
-        # Cache for 5 minutes
-        cache.set(cache_key, cached_orders, timeout=300)
-
+    # Get orders directly from database without cache
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    serializer = OrderSerializer(orders, many=True)
+    
     # Apply pagination
     paginator = OrderPagination()
-    paginated_orders = paginator.paginate_queryset(cached_orders, request)
+    paginated_orders = paginator.paginate_queryset(serializer.data, request)
     
     return paginator.get_paginated_response(paginated_orders)
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from orders.models import CartItem, ShippingAddress
